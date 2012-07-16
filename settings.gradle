@@ -1,3 +1,2 @@
-include 'virgo-nano'
 include 'virgo-tomcat'
-include 'webapp'
+include 'matlab-service'
