@@ -38,7 +38,7 @@ subprojects { subproject ->
 	ext {
 		springVersion = '3.1.2.RELEASE'
 		springBundleVersion = '3.1.2'
-		cglibVersion = '2.2.0'
+		cglibVersion = '2.2.2_1'
 		logbackVersion = '1.0.0'
 		javaxInjectVersion = '1'
 		jspVersion = '2.1'

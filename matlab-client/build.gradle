@@ -1,0 +1,35 @@
+apply plugin: 'war'
+
+version = '0.0.1'
+
+description = 'Matlab test client'
+
+repositories {
+	flatDir name: 'localRepository', dirs: file('../matlab-service/lib')
+}
+
+dependencies {
+	providedCompile project(':matlab-service')
+	
+	providedCompile "org.springframework:spring-context:$springVersion"
+	providedCompile "org.springframework:spring-context-support:$springVersion"
+	providedCompile "javax.inject:javax.inject:$javaxInjectVersion"
+	
+	providedCompile "org.slf4j:slf4j-api:$slf4jVersion"
+	providedCompile "org.apache.servicemix.bundles:org.apache.servicemix.bundles.cglib:$cglibVersion"
+	providedCompile "org.springframework:spring-aop:$springVersion"
+	providedCompile "org.springframework:spring-asm:$springVersion"
+	providedCompile "org.springframework:spring-beans:$springVersion"
+	providedCompile "org.springframework:spring-core:$springVersion"
+	providedCompile "org.springframework:spring-expression:$springVersion"
+	providedCompile "commons-logging:commons-logging:1.1.1"
+}
+
+bundlor {
+	bundleVersion = project.version
+	failOnWarnings = false
+}
+
+jar {
+	manifest.from new File("${project.projectDir}/src/main/resources/META-INF/MANIFEST.MF")
+}

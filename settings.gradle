@@ -1,2 +1,3 @@
 include 'virgo-tomcat'
 include 'matlab-service'
+include 'matlab-client'
