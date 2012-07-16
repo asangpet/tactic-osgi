@@ -1,0 +1,5 @@
+rootProject.name = 'template-bundle'
+
+include 'subtemplate-bundle'
+include 'subtemplate-service'
+include 'subtemplate-client'

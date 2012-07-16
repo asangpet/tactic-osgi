@@ -1,0 +1,163 @@
+description = 'Spring Bundle Template'
+version = '1.0.0'
+
+apply plugin: 'base'
+
+buildscript {
+	repositories {
+		maven { url 'https://repo.springsource.org/plugins-snapshot' }
+	}
+	dependencies {
+		classpath 'org.springframework.build.gradle:bundlor-plugin:0.1.2'
+		classpath 'org.springframework.build.gradle:docbook-reference-plugin:0.1.5'
+	}
+}
+
+allprojects {
+	group = 'edu.cmu.tactic'
+
+	repositories {
+		mavenCentral()
+		maven { url 'http://repository.springsource.com/maven/bundles/release' }
+		maven { url 'http://repository.springsource.com/maven/bundles/external' }
+		maven { url 'http://repo.springsource.org/repo' }
+		maven { url 'http://repo.springsource.org/libs-milestone' }
+		maven { url 'http://repo.springsource.org/plugins-release' } // for bundlor
+	}
+}
+
+subprojects { subproject ->
+
+	apply plugin: 'java'
+	apply plugin: 'eclipse'
+	apply plugin: 'bundlor'
+	
+	sourceCompatibility=1.6
+	targetCompatibility=1.6
+
+	ext {
+		springVersion = '3.1.2.RELEASE'
+		springBundleVersion = '3.1.2'
+		cglibVersion = '2.2.0'
+		logbackVersion = '1.0.0'
+		javaxInjectVersion = '1'
+		jspVersion = '2.1'
+		servletVersion = '2.6'
+		slf4jVersion = '1.6.4'
+		junitVersion = '4.7'
+		jacksonVersion = '1.9.7'
+		thymeleafVersion = '2.0.8'
+	}
+
+	eclipse {
+		project {
+			natures += 'org.springframework.ide.eclipse.core.springnature'
+		}
+	}
+
+	sourceSets {
+		test {
+			resources {
+				srcDirs = ['src/test/resources', 'src/test/java']
+			}
+		}
+	}
+
+	// dependencies that are common across all java projects
+	dependencies {
+		testCompile "org.springframework:spring-test:$springVersion"
+		testCompile "junit:junit:$junitVersion"
+	}
+
+	bundlor {
+		enabled = true
+		failOnWarnings = true
+		bundleManifestVersion = 2
+		bundleVendor = 'Ak'
+		bundleName = project.description
+		bundleVersion = project.version
+		bundleSymbolicName = project.name
+		importTemplate = [
+			//'ch.qos.logback.classic.*'
+		]
+	}
+
+	task sourcesJar(type: Jar) {
+		classifier = 'sources'
+		from sourceSets.main.allJava
+	}
+
+	task javadocJar(type: Jar) {
+		classifier = 'javadoc'
+		from javadoc
+	}
+
+	artifacts {
+		archives sourcesJar
+		archives javadocJar
+	}
+
+}
+
+task distZip(type: Zip) {
+	group = 'Distribution'
+	classifier = 'dist'
+	description = "Builds -${classifier} archive, containing all jars and docs, " +
+		"suitable for community download page."
+
+	ext.baseDir = "${project.name}-${project.version}";
+
+	from('src/dist') {
+		include 'readme.txt'
+		include 'license.txt'
+		include 'notice.txt'
+		into "${baseDir}"
+	}
+
+	subprojects.each { subproject ->
+		into ("${baseDir}/libs") {
+			from subproject.jar
+			from subproject.sourcesJar
+			from subproject.javadocJar
+		}
+	}
+}
+
+// Create an optional "with dependencies" distribution.
+// Not published by default; only for use when building from source.
+task depsZip(type: Zip, dependsOn: distZip) { zipTask ->
+	group = 'Distribution'
+	classifier = 'dist-with-deps'
+	description = "Builds -${classifier} archive, containing everything " +
+		"in the -${distZip.classifier} archive plus all dependencies."
+
+	from zipTree(distZip.archivePath)
+
+	gradle.taskGraph.whenReady { taskGraph ->
+		if (taskGraph.hasTask(":${zipTask.name}")) {
+			def projectNames = rootProject.subprojects*.name
+			def artifacts = new HashSet()
+			subprojects.each { subproject ->
+				subproject.configurations.runtime.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+					def dependency = artifact.moduleVersion.id
+					if (!projectNames.contains(dependency.name)) {
+						artifacts << artifact.file
+					}
+				}
+			}
+
+			zipTask.from(artifacts) {
+				into "${distZip.baseDir}/deps"
+			}
+		}
+	}
+}
+
+artifacts {
+	archives distZip
+}
+
+task dist(dependsOn: assemble) {
+	group = 'Distribution'
+	description = 'Builds -dist, -docs and distribution archives.'
+}

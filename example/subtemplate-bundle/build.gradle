@@ -1,0 +1,139 @@
+apply plugin: 'war'
+
+version = '0.0.1'
+
+description = 'Spring subtemplate'
+
+dependencies {
+	compile "org.thymeleaf:thymeleaf-spring3:$thymeleafVersion"
+	providedCompile "org.osgi:core:4.3.0"
+	//compile "org.codehaus.jackson:jackson-mapper-asl:$jacksonVersion"
+	providedCompile "org.springframework:spring-webmvc:$springVersion"
+	//compile "org.springframework:spring-context:$springVersion"
+	
+	providedCompile project(':subtemplate-service')
+	
+	providedCompile "org.springframework:spring-context:$springVersion"
+	providedCompile "org.springframework:spring-context-support:$springVersion"
+	//providedCompile "org.springframework:spring-web:$springVersion"
+	//compile "ch.qos.logback:logback-classic:$logbackVersion"
+	providedCompile "javax.inject:javax.inject:$javaxInjectVersion"
+	
+	providedCompile "org.slf4j:slf4j-api:$slf4jVersion"
+	providedCompile "net.sourceforge.cglib:com.springsource.net.sf.cglib:$cglibVersion"
+	providedCompile "org.springframework:spring-aop:$springVersion"
+	providedCompile "org.springframework:spring-asm:$springVersion"
+	providedCompile "org.springframework:spring-beans:$springVersion"
+	providedCompile "org.springframework:spring-core:$springVersion"
+	providedCompile "org.springframework:spring-expression:$springVersion"
+	providedCompile "commons-logging:commons-logging:1.1.1"
+	providedCompile "javax:javaee-web-api:6.0"
+	providedCompile "javax.servlet.jsp:jsp-api:$jspVersion"
+}
+bundlor {
+	bundleSymbolicName = project.name
+	bundleName = project.name
+	bundleVersion = project.version
+	def bundleClassPath = 'WEB-INF/classes'
+	project.configurations.runtime.each { File file ->
+		if (!project.configurations.providedCompile.contains(file)) {
+			bundleClassPath += ',WEB-INF/lib/'+file.name
+		}
+	}
+	def packageImport = [
+		'org.springframework.core',
+		'org.springframework.beans',
+		'org.springframework.beans.factory',
+		'org.springframework.beans.factory.annotation',
+		'org.springframework.beans.factory.xml',
+		'org.springframework.context',
+		'org.springframework.context.config',
+		'org.springframework.context.support',
+		'org.springframework.stereotype',
+		'org.springframework.web.bind',
+		'org.springframework.web.bind.annotation',
+		'org.springframework.web.context',
+		'org.springframework.web.context.support',
+		'org.springframework.web.multipart',
+		'org.springframework.web.multipart.commons',
+		'org.springframework.web.servlet',
+		'org.springframework.web.servlet.handler',
+		'org.springframework.web.servlet.mvc',
+		'org.springframework.web.servlet.mvc.annotation',
+		'org.springframework.web.servlet.support',
+		'org.springframework.web.servlet.view',
+		
+		'net.sf.cglib.asm',
+		'net.sf.cglib.beans',
+		'net.sf.cglib.core',
+		'net.sf.cglib.proxy',
+		'net.sf.cglib.reflect',
+		'net.sf.cglib.transform',
+		'net.sf.cglib.util',
+		
+		'org.codehaus.jackson.map',
+		
+		
+		].join(",")
+	def excludeImport = [
+		'org.thymeleaf.*'
+		].join(",")
+	def excludeExport = [
+		//'edu.cmu.tactic.config'
+		].join(",")
+	importTemplate += [
+		"org.springframework.*;version=\"${springVersion}\"",
+		"org.springframework.beans.*;version=\"${springVersion}\"",
+		"org.springframework.beans.factory.*;version=\"${springVersion}\"",
+		"org.springframework.context.*;version=\"${springVersion}\"",
+		"org.springframework.web.*;version=\"${springVersion}\"",
+		"org.springframework.web.bind.*;version=\"${springVersion}\"",
+		"org.springframework.web.context.*;version=\"${springVersion}\"",
+		"org.springframework.web.multipart.*;version=\"${springVersion}\"",
+		"org.springframework.web.servlet.*;version=\"${springVersion}\"",
+		"org.springframework.web.servlet.mvc.*;version=\"${springVersion}\"",
+		
+		'javax.servlet.*;version="[2.6.0, 3.0.0)"',
+		'net.sf.cglib.*;version="2.2.2"',
+		"org.codehaus.jackson.*;version=\"${jacksonVersion}\"" ,
+		"org.slf4j.*;version=\"${slf4jVersion}\"",
+		//"org.thymeleaf.*;version=\"${project.ext.thymeleafVersion}\""
+	]
+	manifestTemplate = """\
+		Bundle-Vendor: ${bundleVendor}
+		Bundle-Version: ${bundleVersion}
+		Bundle-Name: ${bundleName}
+		Bundle-ManifestVersion: ${bundleManifestVersion}
+		Bundle-SymbolicName: ${bundleSymbolicName}
+		Bundle-ClassPath: ${bundleClassPath}
+		Web-ContextPath: /subtemplate
+		Import-Package: ${packageImport}
+		Excluded-Imports: ${excludeImport}
+		Excluded-Exports: ${excludeExport}
+	""".stripIndent()
+	if (!importTemplate.isEmpty()) {
+		manifestTemplate += "Import-Template: "
+		importTemplate.each { entry ->
+			manifestTemplate += "\n " + entry
+			if (entry != importTemplate.last()) {
+				manifestTemplate += ','
+			}
+		}
+	   }
+}
+
+war {
+	//dependsOn 'bundlor'
+	//manifest.from new File("${project.buildDir}/bundlor/META-INF/MANIFEST.MF")
+	manifest.from new File("${project.projectDir}/src/main/resources/META-INF/MANIFEST.MF")
+	/*
+	from ('src/main/resources') {
+		exclude 'src/main/resources/META-INF/MANIFEST.MF'
+	}*/
+}
+
+task assembleBundle(type: Copy, dependsOn: war) {
+	from "$buildDir/libs"
+	into "$buildDir/libs"
+	rename { filename -> filename.replace 'war', 'jar' }
+}
