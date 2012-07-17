@@ -1,0 +1,33 @@
+apply plugin: 'war'
+
+version = '0.0.1'
+
+description = 'Mongo DB data access'
+
+configurations {
+	bundleLibs.extendsFrom(compile)
+	bundleLibs.exclude group:'com.fasterxml.jackson.core'
+	bundleLibs.exclude group:'org.slf4j'
+}
+
+dependencies {
+	compile 'org.jongo:jongo:0.2'
+	compile 'org.mongodb:mongo-java-driver:2.8.0'
+	
+	providedCompile "org.slf4j:slf4j-api:$slf4jVersion"
+	providedCompile 'com.fasterxml.jackson.core:jackson-core:2.0.2'
+	providedCompile 'com.fasterxml.jackson.core:jackson-databind:2.0.2'
+	providedCompile 'com.fasterxml.jackson.core:jackson-annotations:2.0.2'
+}
+
+bundlor {
+	bundleVersion = project.version
+	failOnWarnings = false
+}
+
+jar {
+	manifest.from new File("${project.projectDir}/src/main/resources/META-INF/MANIFEST.MF")
+	into('lib') {
+		from configurations.bundleLibs
+	}
+}
