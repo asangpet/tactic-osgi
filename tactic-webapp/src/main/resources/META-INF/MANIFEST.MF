@@ -6,7 +6,7 @@ Bundle-ClassPath: WEB-INF/classes,
  WEB-INF/lib/thymeleaf-spring3-2.0.8.jar
 Bundle-ManifestVersion: 2
 Web-ContextPath: /tactic
-Import-Package: ak.tactic.data;version="0.0.1",
+Import-Package: ak.tactic.data;version="0.0.1",ak.tactic.model;version="0.0.1",
  javax.servlet;version="[2.5.0,4)",
  javax.servlet.http;version="[2.5.0,4)",
  javax.servlet.jsp.jstl.core;version="[1.2.0,2)",

@@ -4,8 +4,12 @@ import java.util.Comparator;
 
 import org.bson.types.ObjectId;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ResponseInfo {
+	@JsonProperty("_id")
 	private ObjectId id;
+	
 	private long timestamp;
 	private SocketInfo server, client;
 	private double requestTime, responseTime;

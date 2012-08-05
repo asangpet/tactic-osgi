@@ -15,6 +15,7 @@ dependencies {
 	bundleLibs "org.thymeleaf:thymeleaf-spring3:$thymeleafVersion"
 	
 	providedCompile project(':mongodb-service')
+	providedCompile project(':model-service')
 	
 	providedCompile "org.osgi:core:4.3.0"
 	providedCompile "org.springframework:spring-webmvc:$springVersion"

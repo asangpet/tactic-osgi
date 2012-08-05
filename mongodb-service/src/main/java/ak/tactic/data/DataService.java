@@ -12,11 +12,12 @@ public class DataService {
 	
 	public DataService() throws Exception {
 		mongo = new Mongo("127.0.0.1", 27017);
-		jongo = new Jongo(mongo.getDB("test"));
-		responseCollection = jongo.getCollection("response");
+		jongo = new Jongo(mongo.getDB("collector_b"));
+		responseCollection = jongo.getCollection("responseTime");
 	}
 	
 	public Iterable<ResponseInfo> getResponses() {
+		//queryOne();
 		return responseCollection.find().as(ResponseInfo.class);
 	}
 	
