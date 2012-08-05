@@ -1,0 +1,58 @@
+apply plugin: 'war'
+apply plugin: 'maven'
+
+version = '0.0.1'
+
+description = 'Analysis Model Service'
+
+configurations {
+	deployerJars
+	bundleLibs.extendsFrom(compile)
+	bundleLibs.exclude group:'com.fasterxml.jackson.core'
+	bundleLibs.exclude group:'org.slf4j'
+}
+
+dependencies {
+	deployerJars 'org.apache.maven.wagon:wagon-ssh:1.0-beta-2'
+	
+	providedCompile project(':mongodb-service')	
+
+	providedCompile "org.slf4j:slf4j-api:$slf4jVersion"
+	providedCompile 'com.fasterxml.jackson.core:jackson-core:2.0.2'
+	providedCompile 'com.fasterxml.jackson.core:jackson-databind:2.0.2'
+	providedCompile 'com.fasterxml.jackson.core:jackson-annotations:2.0.2'
+	
+	providedCompile "org.apache.servicemix.bundles:org.apache.servicemix.bundles.cglib:$cglibVersion"
+	providedCompile "org.springframework:spring-context:$springVersion"
+	providedCompile "org.springframework:spring-context-support:$springVersion"
+	providedCompile "org.springframework:spring-aop:$springVersion"
+	providedCompile "org.springframework:spring-asm:$springVersion"
+	providedCompile "org.springframework:spring-beans:$springVersion"
+	providedCompile "org.springframework:spring-core:$springVersion"
+	providedCompile "org.springframework:spring-expression:$springVersion"
+	
+}
+
+bundlor {
+	bundleVersion = project.version
+	failOnWarnings = false
+	manifestTemplate = new File("${project.projectDir}/src/main/resources/META-INF/MANIFEST.MF").text	
+}
+
+jar {
+	into('lib') {
+		from configurations.bundleLibs
+	}
+}
+
+uploadArchives {
+	repositories {
+		mavenDeployer {
+			name = 'sshDeployer'
+			configuration = configurations.deployerJars
+			repository(url: "scp://192.168.0.134/home/asangpet/upload") {
+				authentication(userName:"deployer",password:"deployer")
+			}			
+		}
+	}
+}
