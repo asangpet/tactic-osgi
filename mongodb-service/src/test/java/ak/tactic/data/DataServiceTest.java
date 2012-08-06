@@ -21,7 +21,7 @@ public class DataServiceTest {
 	
 	@Test
 	public void testList() {
-		Iterable<ResponseInfo> infos = dataService.getResponses();
+		Iterable<ResponseInfo> infos = dataService.getResponses("responseTime");
 		for (ResponseInfo info : infos) {
 			System.out.println(""+info);
 		}

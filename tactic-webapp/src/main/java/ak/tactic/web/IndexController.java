@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -26,7 +27,7 @@ public class IndexController {
 	public String index(Model model) {
 		//log.info(helloService.sayHello("Hello world"));
 		String result = "";
-		for (ResponseInfo info : dataService.getResponses()) {
+		for (ResponseInfo info : dataService.getResponses("responseTime")) {
 			result += info.toString();
 		}
 		model.addAttribute("helloLabel", result);
@@ -34,9 +35,9 @@ public class IndexController {
 		return "index";
 	}
 	
-	@RequestMapping(value = "/model", method = RequestMethod.GET)
-	public String testModel(Model model) {
-		model.addAttribute("helloLabel", modelService.buildModel());
+	@RequestMapping(value = "/model/{collection}", method = RequestMethod.GET)
+	public String testModel(@PathVariable String collection, Model model) {
+		model.addAttribute("helloLabel", modelService.buildModel(collection));
 		return "index";
 	}
 	

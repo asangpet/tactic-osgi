@@ -16,9 +16,14 @@ public class DataService {
 		responseCollection = jongo.getCollection("responseTime");
 	}
 	
-	public Iterable<ResponseInfo> getResponses() {
-		//queryOne();
-		return responseCollection.find().as(ResponseInfo.class);
+	public Iterable<ResponseInfo> getResponses(String collectionName) {
+		final MongoCollection collection = jongo.getCollection(collectionName);
+		return collection.find().as(ResponseInfo.class);
+	}
+	
+	public Iterable<ResponseInfo> getResponsesByTime(String collectionName) {
+		final MongoCollection collection = jongo.getCollection(collectionName);
+		return collection.find("{}").sort("{timestamp:1}").as(ResponseInfo.class);
 	}
 	
 	public void queryOne() {
