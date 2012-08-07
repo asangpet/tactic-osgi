@@ -96,6 +96,13 @@ subprojects { subproject ->
 		archives sourcesJar
 		archives javadocJar
 	}
+	
+	task uploadJar(dependsOn:'jar') << {
+		copy {
+			from jar.archivePath
+			into "Z:/pickup"
+		}
+	}	
 
 }
 

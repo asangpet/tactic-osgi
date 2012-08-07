@@ -30,6 +30,7 @@ dependencies {
 	providedCompile "org.springframework:spring-beans:$springVersion"
 	providedCompile "org.springframework:spring-core:$springVersion"
 	providedCompile "org.springframework:spring-expression:$springVersion"
+	providedCompile "org.jongo:jongo:0.2"
 	
 }
 
@@ -45,14 +46,21 @@ jar {
 	}
 }
 
+repositories {
+	flatDir(name:'fileRepo',dirs:'Z:/upload')
+}
+
 uploadArchives {
+	uploadDescriptor = false
 	repositories {
+		add project.repositories.fileRepo
+		/*
 		mavenDeployer {
 			name = 'sshDeployer'
 			configuration = configurations.deployerJars
 			repository(url: "scp://192.168.0.134/home/asangpet/upload") {
-				authentication(userName:"deployer",password:"deployer")
+				authentication(userName:"asangpet",password:"andrew661a")
 			}			
-		}
+		}*/
 	}
 }

@@ -16,6 +16,10 @@ public class DataService {
 		responseCollection = jongo.getCollection("responseTime");
 	}
 	
+	public MongoCollection getCollection(String collectionName) {
+		return jongo.getCollection(collectionName);
+	}
+	
 	public Iterable<ResponseInfo> getResponses(String collectionName) {
 		final MongoCollection collection = jongo.getCollection(collectionName);
 		return collection.find().as(ResponseInfo.class);

@@ -27,10 +27,10 @@ dependencies {
 bundlor {
 	bundleVersion = project.version
 	failOnWarnings = false
+	manifestTemplate = new File("${project.projectDir}/src/main/resources/META-INF/MANIFEST.MF").text	
 }
 
 jar {
-	manifest.from new File("${project.projectDir}/src/main/resources/META-INF/MANIFEST.MF")
 	into('lib') {
 		from configurations.bundleLibs
 	}

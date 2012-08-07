@@ -38,4 +38,11 @@ Import-Package: com.fasterxml.jackson.annotation;version="2.0.2",
  org.slf4j.spi;version="1.6.4"
 Bundle-SymbolicName: mongodb-service
 Bundle-Version: 0.0.1
-Export-Package: ak.tactic.data;version="0.0.1"
+Export-Package: ak.tactic.data;version="0.0.1",
+ org.jongo;version="0.2",
+ org.jongo.marshall;version="0.2",
+ org.jongo.marshall.jackson;version="0.2",
+ org.jongo.query;version="0.2"
+Excluded-Imports: org.jongo,org.jongo.marshall,org.jongo.marshall.jackson,org.jongo.query,
+ com.mongodb,com.mongodb.gridfs,com.mongodb.io,com.mongodb.util,org.bson,org.bson.io,org.bson.types,
+ org.bson.util,org.bson.util.annotations
