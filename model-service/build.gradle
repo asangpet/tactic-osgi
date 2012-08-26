@@ -54,13 +54,5 @@ uploadArchives {
 	uploadDescriptor = false
 	repositories {
 		add project.repositories.fileRepo
-		/*
-		mavenDeployer {
-			name = 'sshDeployer'
-			configuration = configurations.deployerJars
-			repository(url: "scp://192.168.0.134/home/asangpet/upload") {
-				authentication(userName:"asangpet",password:"andrew661a")
-			}			
-		}*/
 	}
 }
