@@ -46,7 +46,9 @@ subprojects { subproject ->
 		slf4jVersion = '1.6.4'
 		junitVersion = '4.7'
 		jacksonVersion = '1.9.7'
-		thymeleafVersion = '2.0.8'
+		thymeleafVersion = '2.0.12'
+
+		pickupLocation = 'Z:/pickup'
 	}
 
 	eclipse {
@@ -100,7 +102,7 @@ subprojects { subproject ->
 	task uploadJar(dependsOn:'jar') << {
 		copy {
 			from jar.archivePath
-			into "Z:/pickup"
+			into "${pickupLocation}"
 		}
 	}	
 

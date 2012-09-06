@@ -19,7 +19,7 @@ public class DiscreteProbDensity {
 	double offset = 0;
 	double[] pdf;
 	int numSlots;
-	Long rawCount;
+	public Long rawCount;
 	double[] raw = null;
 
 	public DiscreteProbDensity(int numSlots, double min, double max, double offset) {
@@ -461,11 +461,11 @@ public class DiscreteProbDensity {
 		return this;
 	}
 
-	DiscreteProbDensity shiftByValue(double vshift) {
+	public DiscreteProbDensity shiftByValue(double vshift) {
 		if (vshift > 0) return rshiftByValue(vshift);
 		else return lshiftByValue(-vshift);
 	}
-	DiscreteProbDensity rshiftByValue(double vshift) {
+	public DiscreteProbDensity rshiftByValue(double vshift) {
 		DiscreteProbDensity result = duplicate();
 		int shift = (int)Math.round(vshift/interval);
 		for (int i=result.pdf.length-1;i >= shift;i--){
@@ -476,7 +476,7 @@ public class DiscreteProbDensity {
 		}
 		return result;
 	}
-	DiscreteProbDensity lshiftByValue(double vshift) {
+	public DiscreteProbDensity lshiftByValue(double vshift) {
 		DiscreteProbDensity result = duplicate();
 		int shift = (int)Math.round(vshift/interval);
 		//def sum = 0
@@ -493,7 +493,7 @@ public class DiscreteProbDensity {
 	}
 
 	// Shift by index here
-	DiscreteProbDensity rshift(int shift) {
+	public DiscreteProbDensity rshift(int shift) {
 		DiscreteProbDensity result = duplicate();
 		for (int i=result.pdf.length-1;i >= shift;i--){
 			result.pdf[i] = result.pdf[i-shift];
@@ -504,7 +504,7 @@ public class DiscreteProbDensity {
 		return result;
 	}
 
-	DiscreteProbDensity duplicate() {
+	public DiscreteProbDensity duplicate() {
 		/*
 		DiscreteProbDensity result = new DiscreteProbDensity(numSlots,min,max,offset)
 		for (int i=0;i<pdf.length;i++){
@@ -516,7 +516,7 @@ public class DiscreteProbDensity {
 	}
 
 	// Given another pdf and its conditional prob, calculate the merged pdf
-	DiscreteProbDensity distribute(double condProb, DiscreteProbDensity densityPair) {
+	public DiscreteProbDensity distribute(double condProb, DiscreteProbDensity densityPair) {
 		DiscreteProbDensity result = duplicate();
 		double sum = 0;
 		for (int i=0; i<result.pdf.length;i++){
@@ -531,7 +531,7 @@ public class DiscreteProbDensity {
 	}
 
 	// Given another pdf, calculate the merged pdf, assuming uniform distribution
-	DiscreteProbDensity distribute(DiscreteProbDensity densityPair) {
+	public DiscreteProbDensity distribute(DiscreteProbDensity densityPair) {
 		DiscreteProbDensity result = duplicate();
 		double sum = 0;
 		for (int i=0; i<result.pdf.length;i++){
@@ -546,7 +546,7 @@ public class DiscreteProbDensity {
 	}
 
 	// Given an input pdf and its probability, calculate the pdf of the current one subtracted by the input
-	DiscreteProbDensity remainDistribute(double prob,DiscreteProbDensity densityPair) {
+	public DiscreteProbDensity remainDistribute(double prob,DiscreteProbDensity densityPair) {
 		DiscreteProbDensity result = duplicate();
 		double sum = 0;
 		for (int i=0; i<result.pdf.length;i++){
@@ -562,7 +562,7 @@ public class DiscreteProbDensity {
 	}
 
 	// Given a pdf and its conditional probability, extract the original pdf
-	DiscreteProbDensity extract(double condProb, DiscreteProbDensity densityPair) {
+	public DiscreteProbDensity extract(double condProb, DiscreteProbDensity densityPair) {
 		DiscreteProbDensity result = duplicate();
 		double sum = 0;
 		for (int i=0; i<result.pdf.length;i++){
@@ -580,7 +580,7 @@ public class DiscreteProbDensity {
 		return result;
 	}
 
-	double[] generateRaw() {
+	public double[] generateRaw() {
 		int sampleCount = 1000;
 		List<Double> samples = new LinkedList<Double>();
 		double initValue = interval/2;
@@ -610,7 +610,7 @@ public class DiscreteProbDensity {
 		return out;
 	}
 
-	double[] getQuantile(double[] qArray) {
+	public double[] getQuantile(double[] qArray) {
 		int qIndex = 0;
 		double[] result = new double[qArray.length];
 		double sum = 0;
@@ -630,6 +630,10 @@ public class DiscreteProbDensity {
 	public void setPdf(double[] pdf) {
 		this.pdf = pdf;
 	}
+	
+	public Long getRawCount() {
+		return rawCount;
+	}
 
 	public DiscreteProbDensity setRawCount(long rawCount) {
 		this.rawCount = rawCount;
@@ -638,6 +642,10 @@ public class DiscreteProbDensity {
 
 	public double[] getPdf() {
 		return pdf;
+	}
+	
+	public double[] getRaw() {
+		return raw;
 	}
 
 	public static void main(String[] args) {

@@ -12,10 +12,15 @@ configurations {
 	bundleLibs.exclude group:'org.slf4j'
 }
 
+repositories {
+	flatDir name: 'localRepository', dirs: file('../lib')
+}
+
 dependencies {
 	deployerJars 'org.apache.maven.wagon:wagon-ssh:1.0-beta-2'
 	
 	providedCompile project(':mongodb-service')	
+	providedCompile project(':matlab-service')
 
 	providedCompile "org.slf4j:slf4j-api:$slf4jVersion"
 	providedCompile 'com.fasterxml.jackson.core:jackson-core:2.0.2'
@@ -32,6 +37,8 @@ dependencies {
 	providedCompile "org.springframework:spring-expression:$springVersion"
 	providedCompile "org.jongo:jongo:0.2"
 	
+	providedCompile "com.googlecode.guava-osgi:guava-osgi:11.0.1"
+	
 }
 
 bundlor {
@@ -43,16 +50,5 @@ bundlor {
 jar {
 	into('lib') {
 		from configurations.bundleLibs
-	}
-}
-
-repositories {
-	flatDir(name:'fileRepo',dirs:'Z:/upload')
-}
-
-uploadArchives {
-	uploadDescriptor = false
-	repositories {
-		add project.repositories.fileRepo
 	}
 }

@@ -48,9 +48,6 @@ bundlor {
 war {
 	dependsOn 'bundlor'
 	manifest.from new File("${project.buildDir}/bundlor/META-INF/MANIFEST.MF")
-	into('lib') {
-		from configurations.bundleLibs
-	}
 }
 
 task assembleBundle(type: Copy, dependsOn: war) {
@@ -58,3 +55,10 @@ task assembleBundle(type: Copy, dependsOn: war) {
 	into "$buildDir/libs"
 	rename { filename -> filename.replace 'war', 'jar' }
 }
+
+task uploadJar(dependsOn:'assembleBundle', overwrite:true) {
+	copy {
+		from jar.archivePath
+		into "${pickupLocation}"
+	}
+}	

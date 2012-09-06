@@ -27,7 +27,8 @@ public class IndexController {
 	public String index(Model model) {
 		//log.info(helloService.sayHello("Hello world"));
 		String result = "";
-		for (ResponseInfo info : dataService.getResponses("responseTime")) {
+		ResponseInfo info = dataService.getCollection("responseTime").findOne().as(ResponseInfo.class);
+		if (info != null) {
 			result += info.toString();
 		}
 		model.addAttribute("helloLabel", result);

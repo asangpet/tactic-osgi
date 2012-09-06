@@ -8,8 +8,12 @@
     	http://www.springframework.org/schema/context
     	http://www.springframework.org/schema/context/spring-context.xsd
 		http://www.eclipse.org/gemini/blueprint/schema/blueprint
-        http://www.eclipse.org/gemini/blueprint/schema/blueprint/gemini-blueprint.xsd">	
+        http://www.eclipse.org/gemini/blueprint/schema/blueprint/gemini-blueprint.xsd">
+
 	<osgi:reference id="dataService" interface="ak.tactic.data.DataService" />
-	<osgi:service ref="modelService" interface="ak.tactic.model.ModelService" />              
+	<osgi:reference id="mathService" interface="ak.tactic.math.MathService" />
+	
+	<osgi:service ref="modelService" interface="ak.tactic.model.ModelService" />
+	              
 	<context:component-scan base-package="ak.tactic.model"/>
 </beans>

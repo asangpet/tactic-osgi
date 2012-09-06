@@ -2,5 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: model-service
 Bundle-Version: 0.0.1
-Import-Package: org.springframework.expression,org.eclipse.gemini.blueprint
+Import-Package: org.springframework.expression,
+ org.eclipse.gemini.blueprint,
+ ak.tactic.math
 Export-Package: ak.tactic.model;version="0.0.1"

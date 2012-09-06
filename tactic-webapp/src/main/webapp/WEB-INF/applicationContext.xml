@@ -15,6 +15,5 @@
 
 	<osgi:reference id="dataService" interface="ak.tactic.data.DataService" />
 	<osgi:reference id="modelService" interface="ak.tactic.model.ModelService" />	              
-	<!-- <context:component-scan base-package="ak.tactic.web"/> -->
 	
 </beans>

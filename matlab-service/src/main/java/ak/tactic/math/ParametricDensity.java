@@ -1,18 +1,12 @@
 package ak.tactic.math;
 
 public class ParametricDensity {
-	DiscreteProbDensity pdf;
-	double[] param;
-	double[] inputparam;
-	double rawCount;
+	public DiscreteProbDensity pdf;
+	public double[] param;
+	public double[] inputparam;
+	public double rawCount;
 	
 	public ParametricDensity() {	
-	}
-	
-	public ParametricDensity(NodeModel model) {
-		this.pdf = new DiscreteProbDensity(model.pdf);
-		this.param = model.param.clone();
-		this.rawCount = model.rawCount;		
 	}
 	
 	public ParametricDensity(DiscreteProbDensity density, double[] param) {
@@ -48,6 +42,18 @@ public class ParametricDensity {
 		return pdf;
 	}
 	
+	public double[] getParam() {
+		return param;
+	}
+	
+	public double getRawCount() {
+		return rawCount;
+	}
+	
+	public void setRawCount(double rawCount) {
+		this.rawCount = rawCount;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuffer buf = new StringBuffer();
@@ -63,5 +69,5 @@ public class ParametricDensity {
 			}
 		}
 		return "ParametricDensity - count {"+rawCount+"} - param {"+buf.toString()+"} - input - {"+inbuf+"}";		
-	}
+	}	
 }
