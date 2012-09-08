@@ -19,7 +19,7 @@ public class DiscreteProbDensity {
 	double offset = 0;
 	double[] pdf;
 	int numSlots;
-	public Long rawCount;
+	Long rawCount = Long.valueOf(0L);
 	double[] raw = null;
 
 	public DiscreteProbDensity(int numSlots, double min, double max, double offset) {
@@ -46,6 +46,7 @@ public class DiscreteProbDensity {
 		// bounded slot
 		if (slot >= numSlots) slot = numSlots-1;
 		pdf[slot]++;
+		rawCount++;
 	}
 	public void convert(double[] value) {
 		for (int i=0;i<value.length;i++) {

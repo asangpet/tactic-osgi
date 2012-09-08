@@ -38,7 +38,13 @@ public class IndexController {
 	
 	@RequestMapping(value = "/model/{collection}", method = RequestMethod.GET)
 	public String testModel(@PathVariable String collection, Model model) {
-		model.addAttribute("helloLabel", modelService.buildModel(collection));
+		model.addAttribute("helloLabel", modelService.buildModel(collection, false));
+		return "index";
+	}
+	
+	@RequestMapping(value = "/model/{collection}/refresh", method = RequestMethod.GET)
+	public String refreshModel(@PathVariable String collection, Model model) {
+		model.addAttribute("helloLabel", modelService.buildModel(collection, true));
 		return "index";
 	}
 	

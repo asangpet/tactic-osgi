@@ -3,9 +3,14 @@ package ak.tactic.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import ak.tactic.math.DiscreteProbDensity;
+import ak.tactic.math.ModelConfig;
+
 public class Node {
 	Set<Node> dependents = new HashSet<Node>();
 	String id;
+	DiscreteProbDensity serverResponse = new DiscreteProbDensity(
+			ModelConfig.maxTime/ModelConfig.rangeinterval,0,ModelConfig.maxTime,ModelConfig.offset);
 	
 	public void setId(String id) {
 		this.id = id;
@@ -41,5 +46,9 @@ public class Node {
 	@Override
 	public String toString() {
 		return id;
+	}
+	
+	public DiscreteProbDensity getServerResponse() {
+		return serverResponse;
 	}
 }

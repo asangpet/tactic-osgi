@@ -18,7 +18,7 @@ public class ModelService {
 	MathService mathService;
 	
 	Map<String, App> appMap = new ConcurrentHashMap<String, App>();
-	public String buildModel(String collectionName) {
+	public String buildModel(String collectionName, boolean needRefresh) {
 		App app = appMap.get(collectionName);
 		if (app == null) {
 			app = context.getBean(App.class);
@@ -30,7 +30,7 @@ public class ModelService {
 			sb.append(existingApps.toString()+"\n");
 		}
 		sb.append("---"+app+"\n");
-		sb.append(app.getModel());
+		sb.append(app.getModel(needRefresh));
 		return sb.toString();
 	}
 }

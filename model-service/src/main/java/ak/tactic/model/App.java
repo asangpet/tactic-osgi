@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import ak.tactic.data.DataService;
 import ak.tactic.data.ResponseInfo;
+import ak.tactic.model.data.DistributionData;
 
 @Component
 @Scope("prototype")
@@ -36,8 +37,8 @@ public class App {
 		return node;
 	}
 	
-	public String getModel() {
-		if (nodeMap.size() == 0) {
+	public String getModel(boolean needRefresh) {
+		if (nodeMap.size() == 0 || needRefresh) {
 			return buildModel();
 		}
 		return printModel();
@@ -58,11 +59,15 @@ public class App {
 	}
 	
 	public String buildModel() {
+		long computeTime = System.currentTimeMillis();
 		MongoCollection collection = dataService.getCollection(collectionName);
+		MongoCollection pdfCollection = dataService.getModelCollection();
+		
 		Iterator<ResponseInfo> iter = collection.find("{}").sort("{timestamp:1}").as(ResponseInfo.class).iterator();
 		StringBuffer sbuf = new StringBuffer();
 		int count = 0;
 		double time = 0;
+
 		while (iter.hasNext()) {
 			count++;
 			ResponseInfo response = iter.next();
@@ -71,6 +76,7 @@ public class App {
 			parent.addDependent(child);
 			
 			time += response.getResponseTime();
+			child.getServerResponse().add(response.getResponseTime());
 			if (count < 10) {
 				sbuf.append("\n");
 				sbuf.append(response);
@@ -82,6 +88,13 @@ public class App {
 		}
 		sbuf.append("\n");
 		sbuf.append(printModel());
+		
+		sbuf.append("\n");
+		for (Node node : nodeMap.values()) {
+			sbuf.append(node + ":" + node.getServerResponse().getRawCount() + "\n");			
+			pdfCollection.save(new DistributionData(node.id, node.getServerResponse()));
+		}
+		sbuf.append("\n\nTime: ").append(System.currentTimeMillis() - computeTime).append("ms");
 		return sbuf.toString();
 	}
 	

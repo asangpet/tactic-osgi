@@ -10,6 +10,10 @@ configurations {
 	bundleLibs.exclude group:'org.slf4j'
 }
 
+repositories {
+	flatDir name: 'localRepository', dirs: file('../lib')
+}
+
 dependencies {
 	compile "org.thymeleaf:thymeleaf-spring3:$thymeleafVersion"
 	bundleLibs "org.thymeleaf:thymeleaf-spring3:$thymeleafVersion"

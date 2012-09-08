@@ -10,6 +10,8 @@ public class DataService {
 	Jongo jongo;
 	MongoCollection responseCollection;
 	
+	static final String modelCollection = "model";
+	
 	public DataService() throws Exception {
 		mongo = new Mongo("127.0.0.1", 27017);
 		jongo = new Jongo(mongo.getDB("collector_b"));
@@ -18,6 +20,10 @@ public class DataService {
 	
 	public MongoCollection getCollection(String collectionName) {
 		return jongo.getCollection(collectionName);
+	}
+	
+	public MongoCollection getModelCollection() {
+		return jongo.getCollection(modelCollection);
 	}
 	
 	public Iterable<ResponseInfo> getResponses(String collectionName) {

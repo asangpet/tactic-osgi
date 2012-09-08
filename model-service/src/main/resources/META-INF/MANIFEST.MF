@@ -6,3 +6,4 @@ Import-Package: org.springframework.expression,
  org.eclipse.gemini.blueprint,
  ak.tactic.math
 Export-Package: ak.tactic.model;version="0.0.1"
+Excluded-Imports: com.mongodb,com.mongodb.gridfs,com.mongodb.io,com.mongodb.util
