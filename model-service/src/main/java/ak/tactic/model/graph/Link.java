@@ -2,7 +2,6 @@ package ak.tactic.model.graph;
 
 import java.util.Formatter;
 
-import ak.tactic.model.deployment.Dependency;
 
 public class Link {
 	Node source;

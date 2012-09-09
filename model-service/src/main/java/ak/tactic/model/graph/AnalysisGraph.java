@@ -7,21 +7,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import ak.tactic.math.DiscreteProbDensity;
 import ak.tactic.math.MathService;
 import ak.tactic.math.ParametricDensity;
 
+@Component
+@Scope("prototype")
 public class AnalysisGraph extends InstanceGraph {
 	Node root = null;
 	boolean shapeshift = false;
 	boolean nonparamPredict = true;
 
-	@Inject	MathService matlab;
-	@Inject Logger log;
+	@Autowired
+	MathService matlab;
+	
+	@Autowired
+	Logger log;
 
 	ParametricDensity getParamFit(DiscreteProbDensity pdf, boolean nofit) {
 		if (nofit) return new ParametricDensity(pdf, new double[] {1,1,1});
@@ -72,7 +78,7 @@ public class AnalysisGraph extends InstanceGraph {
 					}
 					if (uptierCount > 0) node.requestCount = Math.round(node.serverResponse.getRawCount() / uptierCount);
 					if (node.requestCount < 1) node.requestCount = 1;
-					log.debug("------Estimating tier request count {} - {}",node.name,node.requestCount);
+					log.debug("------Estimating tier request count {} - {}",node,node.requestCount);
 				}
 			}
 		}

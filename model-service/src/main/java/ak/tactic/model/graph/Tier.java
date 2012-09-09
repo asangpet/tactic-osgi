@@ -1,6 +1,5 @@
 package ak.tactic.model.graph;
 
-import ak.tactic.model.deployment.Dependency;
 
 public class Tier {
 	String name;

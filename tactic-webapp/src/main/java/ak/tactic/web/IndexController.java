@@ -1,5 +1,7 @@
 package ak.tactic.web;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import ak.tactic.data.DataService;
 import ak.tactic.data.ResponseInfo;
 import ak.tactic.model.ModelService;
+import ak.tactic.model.template.AnalysisInstance;
 
 @Controller
 public class IndexController {
@@ -45,6 +48,14 @@ public class IndexController {
 	@RequestMapping(value = "/model/{collection}/refresh", method = RequestMethod.GET)
 	public String refreshModel(@PathVariable String collection, Model model) {
 		model.addAttribute("helloLabel", modelService.buildModel(collection, true));
+		return "index";
+	}
+	
+	@RequestMapping(value = "/analysis", method = RequestMethod.GET)
+	public String analysisModel(Model model) {
+		AnalysisInstance instance = modelService.getAnalysisInstance("dist");
+		Map<String, double[]> map = instance.analyze();
+		model.addAttribute("helloLabel", map);
 		return "index";
 	}
 	

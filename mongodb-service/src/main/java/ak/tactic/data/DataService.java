@@ -16,6 +16,7 @@ public class DataService {
 		mongo = new Mongo("127.0.0.1", 27017);
 		jongo = new Jongo(mongo.getDB("collector_b"));
 		responseCollection = jongo.getCollection("responseTime");
+		getModelCollection().ensureIndex("{name:1}");
 	}
 	
 	public MongoCollection getCollection(String collectionName) {

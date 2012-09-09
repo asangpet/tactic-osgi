@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import ak.tactic.data.DataService;
 import ak.tactic.data.ResponseInfo;
 import ak.tactic.model.data.DistributionData;
+import ak.tactic.model.graph.Node;
 
 @Component
 @Scope("prototype")
@@ -30,7 +31,7 @@ public class App {
 	private Node getNode(String id) {
 		Node node = nodeMap.get(id);
 		if (node == null) {
-			node = new Node();
+			node = new Node(id, null, false);
 			node.setId(id);
 			nodeMap.put(id, node);
 		}
@@ -49,7 +50,7 @@ public class App {
 		for (Node node : nodeMap.values()) {
 			sbuf.append(node.toString());
 			sbuf.append(" -> ");
-			for (Node dep : node.dependents) {
+			for (Node dep : node.getDependents()) {
 				sbuf.append(dep);
 				sbuf.append(", ");
 			}
@@ -90,9 +91,10 @@ public class App {
 		sbuf.append(printModel());
 		
 		sbuf.append("\n");
+		pdfCollection.remove("{model:#}", collectionName);
 		for (Node node : nodeMap.values()) {
 			sbuf.append(node + ":" + node.getServerResponse().getRawCount() + "\n");			
-			pdfCollection.save(new DistributionData(node.id, node.getServerResponse()));
+			pdfCollection.save(new DistributionData(collectionName, node.getId(), node.getServerResponse()));
 		}
 		sbuf.append("\n\nTime: ").append(System.currentTimeMillis() - computeTime).append("ms");
 		return sbuf.toString();

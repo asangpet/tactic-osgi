@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 import ak.tactic.model.deployment.Component;
-import ak.tactic.model.deployment.Dependency;
 
 public class InstanceGraph {
 	int currentIndex = 0;
@@ -17,7 +16,6 @@ public class InstanceGraph {
 	List<Link> links = new ArrayList<Link>(); // [source:,target:,type:,parent:]
 	
 	// shallow copy of data structure
-	@SuppressWarnings("unchecked")
 	public AnalysisGraph createNewInstance() {
 		AnalysisGraph graph = new AnalysisGraph();
 		graph.currentIndex = currentIndex;
@@ -73,7 +71,7 @@ public class InstanceGraph {
 	public Node addNode(String name, Component tier) {
 		Node newNode = getNode(name);
 		if (newNode == null) {
-			newNode = new Node(name, currentIndex, tier, false);
+			newNode = new Node(name, tier, false);
 			currentIndex++;
 			nodes.put(name, newNode);
 			nodeList.add(newNode);
@@ -84,7 +82,7 @@ public class InstanceGraph {
 	public Node addNode(Component tier) {
 		Node newNode = getNode(tier.getName());
 		if (newNode == null) {
-			newNode = new Node(tier.getName(), currentIndex, tier, false);
+			newNode = new Node(tier.getName(), tier, false);
 			currentIndex++;
 			nodes.put(tier.getName(), newNode);
 			nodeList.add(newNode);
@@ -124,7 +122,7 @@ public class InstanceGraph {
 		List<HashMap<String,Object>> jnodes = jsonGraph.get("nodes");
 		for (Node it:nodeList) {
 			HashMap<String,Object> result = new LinkedHashMap<String,Object>();
-			result.put("name", it.name);
+			result.put("name", it.getName());
 			result.put("group", 1);
 			result.put("mark", it.mark);
 			if (it.x != null) result.put("x", it.x);

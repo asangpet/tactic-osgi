@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.UUID;
 
 import ak.tactic.model.graph.AnalysisGraph;
+import ak.tactic.model.graph.Dependency;
 import ak.tactic.model.graph.InstanceGraph;
 import ak.tactic.model.graph.Node;
 
@@ -109,7 +110,7 @@ public class Service extends Entity {
 	
 	// Get instance graph associated with this service
 	AnalysisGraph getInstanceGraph() {
-		if (graph == null) {
+		if (graph == null) {			
 			graph = new AnalysisGraph();
 			createGraph(this.rootComponent ,graph, null);
 		}

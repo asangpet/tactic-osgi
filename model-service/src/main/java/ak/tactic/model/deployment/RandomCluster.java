@@ -1,0 +1,22 @@
+package ak.tactic.model.deployment;
+
+import ak.tactic.model.deployment.Cluster;
+
+public class RandomCluster extends Cluster {
+	public RandomCluster(String name) {
+		super(name);		
+	}
+	
+	public void place() {
+		mapping.clear();
+		
+		Host[] hostArray = new Host[hosts.size()];
+		hostArray = hosts.values().toArray(hostArray);
+			
+		for (VirtualMachine vm:vms.values()) {
+			int pick = (int)Math.round(Math.random()*(hostArray.length-1));
+			mapping.put(hostArray[pick], vm);
+		}
+	}
+	
+}

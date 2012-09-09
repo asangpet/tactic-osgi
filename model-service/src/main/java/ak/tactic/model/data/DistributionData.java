@@ -4,9 +4,11 @@ import ak.tactic.math.DiscreteProbDensity;
 
 public class DistributionData {
 	public String name;
+	public String model;
 	public double[] data;
 	
-	public DistributionData(String name, DiscreteProbDensity prob) {
+	public DistributionData(String model, String name, DiscreteProbDensity prob) {
+		this.model = model;
 		this.name = name;
 		this.data = prob.getPdf();
 	}
