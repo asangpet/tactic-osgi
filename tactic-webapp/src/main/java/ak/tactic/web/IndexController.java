@@ -51,9 +51,9 @@ public class IndexController {
 		return "index";
 	}
 	
-	@RequestMapping(value = "/analysis", method = RequestMethod.GET)
-	public String analysisModel(Model model) {
-		AnalysisInstance instance = modelService.getAnalysisInstance("dist");
+	@RequestMapping(value = "/analysis/{instanceName}", method = RequestMethod.GET)
+	public String analysisModel(@PathVariable String instanceName, Model model) {
+		AnalysisInstance instance = modelService.getAnalysisInstance(instanceName);
 		Map<String, double[]> map = instance.analyze();
 		StringBuffer sb = new StringBuffer();
 		for (Map.Entry<String, double[]> entry : map.entrySet()) {
@@ -66,7 +66,7 @@ public class IndexController {
 			sb.append("];\n");
 		}
 		model.addAttribute("helloLabel", sb.toString());
-		return "index";
+		return "vanilla";
 	}
 	
 	@RequestMapping(value = "/play", method = RequestMethod.GET)

@@ -12,11 +12,6 @@ import com.mathworks.toolbox.javabuilder.MWException;
 public class MatlabService {
 	Logger log = LoggerFactory.getLogger(MatlabService.class);
 
-	int maxTime = ModelConfig.maxTime;
-	double offset = ModelConfig.offset;
-	int rangeinterval = ModelConfig.rangeinterval;
-	double[] rangeArray;
-
 	Convolution conv;
 	ParallelConvolution parConv;
 	Distribution dist;
@@ -28,14 +23,6 @@ public class MatlabService {
 			dist = new Distribution();
 		} catch (MWException e) {
 			log.error(e.toString());
-		}
-
-		// generate rangeArray
-		rangeArray = new double[maxTime/rangeinterval];
-		double start = rangeinterval/2.0;
-		for (int i=0;i<rangeArray.length;i++) {
-			rangeArray[i] = start;
-			start = start+rangeinterval;
 		}
 	}
 	

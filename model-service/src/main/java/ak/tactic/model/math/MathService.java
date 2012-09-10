@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import ak.tactic.math.MatlabService;
-import ak.tactic.math.ModelConfig;
+import ak.tactic.model.ModelConfig;
 
 import com.mathworks.toolbox.javabuilder.MWClassID;
 import com.mathworks.toolbox.javabuilder.MWComplexity;
