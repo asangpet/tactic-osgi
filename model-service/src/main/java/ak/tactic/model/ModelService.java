@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import ak.tactic.math.MathService;
+import ak.tactic.model.math.MathService;
 import ak.tactic.model.template.AnalysisInstance;
 import ak.tactic.model.template.ContentWebAnalysis;
 import ak.tactic.model.template.DistWebAnalysis;

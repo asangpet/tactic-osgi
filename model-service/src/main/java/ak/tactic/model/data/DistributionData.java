@@ -1,6 +1,6 @@
 package ak.tactic.model.data;
 
-import ak.tactic.math.DiscreteProbDensity;
+import ak.tactic.model.math.DiscreteProbDensity;
 
 public class DistributionData {
 	public String name;

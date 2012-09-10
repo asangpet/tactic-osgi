@@ -4,12 +4,12 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ak.tactic.math.DiscreteProbDensity;
-import ak.tactic.math.MathService;
 import ak.tactic.model.deployment.Cluster;
 import ak.tactic.model.deployment.Component;
 import ak.tactic.model.deployment.Host;
@@ -17,6 +17,8 @@ import ak.tactic.model.deployment.ImpactCluster;
 import ak.tactic.model.deployment.Service;
 import ak.tactic.model.deployment.VirtualMachine;
 import ak.tactic.model.graph.AnalysisGraph;
+import ak.tactic.model.math.DiscreteProbDensity;
+import ak.tactic.model.math.MathService;
 
 @org.springframework.stereotype.Component
 public class DistWebAnalysis implements AnalysisInstance {
@@ -34,13 +36,16 @@ public class DistWebAnalysis implements AnalysisInstance {
 	static final String NODE_D1 = "10.43.1.2";
 	static final String NODE_D2 = "10.43.1.3";
 	
-	public DistWebAnalysis() {
+	@PostConstruct
+	public void init() {
 		cluster = new ImpactCluster("impact");
 		((ImpactCluster)cluster).setLog(log);
 		
 		service = Builder.buildService("dist", NODE_ROOT)
 					.dist(NODE_D1, NODE_D2).build();
 		cluster.add(service).addHost("intelq5");
+		graph = service.getAnalysisGraph();
+		graph.setMatlab(matlab);
 	}
 	
 	double findImpact(AnalysisGraph graph, Double relativeShift, String nodeName, String root) {
@@ -85,16 +90,12 @@ public class DistWebAnalysis implements AnalysisInstance {
 		return cluster.getMapping().asMap();
 	}
 	
-	public void setup() {
-		graph = service.getAnalysisGraph();
-	}
-	
 	@Override
 	public Map<String, double[]> analyze() {
 		Map<String, DiscreteProbDensity> densityMap = new LinkedHashMap<String, DiscreteProbDensity>();
-		densityMap.put(NODE_ROOT, matlab.gev(0.2, 100, 1200).setRawCount(100));
+		densityMap.put(NODE_ROOT, matlab.gev(0.2, 300, 1200).setRawCount(100));
 		densityMap.put(NODE_D1, matlab.gev(0.2, 100, 1100).setRawCount(100));
-		densityMap.put(NODE_D2, matlab.gev(0.2, 100, 1100).setRawCount(100));
+		densityMap.put(NODE_D2, matlab.gev(0.2, 200, 1100).setRawCount(100));
 		graph.analyze(densityMap);
 		
 		Map<String, double[]> result = new LinkedHashMap<String, double[]>();
@@ -107,6 +108,10 @@ public class DistWebAnalysis implements AnalysisInstance {
 		log.info("od1   - {}",graph.getNode(NODE_D1).getAnalysisResponse().getPdf().average());
 		log.info("od2   - {}",graph.getNode(NODE_D2).getAnalysisResponse().getPdf().average());
 
+		result.put("root", graph.getNode(NODE_ROOT).getAnalysisResponse().getPdf().getPdf());
+		result.put("d1", graph.getNode(NODE_D1).getAnalysisResponse().getPdf().getPdf());
+		result.put("d2", graph.getNode(NODE_D2).getAnalysisResponse().getPdf().getPdf());
+		
 		/* Manual shift
 		Map<String, DiscreteProbDensity> transferMap = new LinkedHashMap<String, DiscreteProbDensity>();
 		//transferMap.put("db", matlab.gaussian(60, 10).setRaw(500));

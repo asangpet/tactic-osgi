@@ -1,7 +1,7 @@
 package ak.tactic.model.graph;
 
-import ak.tactic.math.DiscreteProbDensity;
-import ak.tactic.math.ParametricDensity;
+import ak.tactic.model.math.DiscreteProbDensity;
+import ak.tactic.model.math.ParametricDensity;
 
 public class NodeModel {
 	TransferFunction transfer;

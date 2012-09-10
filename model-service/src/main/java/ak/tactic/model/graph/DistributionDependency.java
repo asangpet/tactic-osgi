@@ -1,7 +1,7 @@
 package ak.tactic.model.graph;
 
-import ak.tactic.math.DiscreteProbDensity;
 import ak.tactic.model.deployment.Component;
+import ak.tactic.model.math.DiscreteProbDensity;
 
 public class DistributionDependency extends Dependency{
 	DiscreteProbDensity distProb = null; 

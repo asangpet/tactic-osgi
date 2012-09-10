@@ -3,10 +3,10 @@ package ak.tactic.model.graph;
 import java.util.HashSet;
 import java.util.Set;
 
-import ak.tactic.math.DiscreteProbDensity;
 import ak.tactic.math.ModelConfig;
-import ak.tactic.math.ParametricDensity;
 import ak.tactic.model.deployment.Component;
+import ak.tactic.model.math.DiscreteProbDensity;
+import ak.tactic.model.math.ParametricDensity;
 
 public class Node {
 	Set<Node> dependents = new HashSet<Node>();

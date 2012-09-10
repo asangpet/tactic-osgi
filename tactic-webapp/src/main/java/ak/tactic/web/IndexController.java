@@ -55,7 +55,17 @@ public class IndexController {
 	public String analysisModel(Model model) {
 		AnalysisInstance instance = modelService.getAnalysisInstance("dist");
 		Map<String, double[]> map = instance.analyze();
-		model.addAttribute("helloLabel", map);
+		StringBuffer sb = new StringBuffer();
+		for (Map.Entry<String, double[]> entry : map.entrySet()) {
+			sb.append(entry.getKey());
+			sb.append(" = [");
+			for (double v : entry.getValue()) {
+				sb.append(v);
+				sb.append(",");
+			}
+			sb.append("];\n");
+		}
+		model.addAttribute("helloLabel", sb.toString());
 		return "index";
 	}
 	

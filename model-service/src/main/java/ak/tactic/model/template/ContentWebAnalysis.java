@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ak.tactic.math.DiscreteProbDensity;
-import ak.tactic.math.MathService;
 import ak.tactic.model.deployment.Cluster;
 import ak.tactic.model.deployment.Component;
 import ak.tactic.model.deployment.Host;
@@ -17,6 +15,8 @@ import ak.tactic.model.deployment.ImpactCluster;
 import ak.tactic.model.deployment.Service;
 import ak.tactic.model.deployment.VirtualMachine;
 import ak.tactic.model.graph.AnalysisGraph;
+import ak.tactic.model.math.DiscreteProbDensity;
+import ak.tactic.model.math.MathService;
 
 @org.springframework.stereotype.Component
 public class ContentWebAnalysis implements AnalysisInstance {

@@ -11,7 +11,7 @@
         http://www.eclipse.org/gemini/blueprint/schema/blueprint/gemini-blueprint.xsd">
 
 	<osgi:reference id="dataService" interface="ak.tactic.data.DataService" />
-	<osgi:reference id="mathService" interface="ak.tactic.math.MathService" />
+	<osgi:reference id="matlabService" interface="ak.tactic.math.MatlabService" />
 	
 	<osgi:service ref="modelService" interface="ak.tactic.model.ModelService" />
 	              

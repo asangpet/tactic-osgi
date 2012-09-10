@@ -1,13 +1,15 @@
 /*
  * MATLAB Compiler: 4.18 (R2012b)
- * Date: Sun Jun 24 19:41:54 2012
+ * Date: Sun Sep 09 11:54:22 2012
  * Arguments: "-B" "macro_default" "-W" "java:one.matlab.tools,Convolution" "-T" 
- * "link:lib" "-d" "C:\\Users\\asangpet\\Documents\\MATLAB\\one.matlab.tools\\src" "-N" 
- * "-p" "images" "-p" "distcomp" "-w" "enable:specified_file_mismatch" "-w" 
+ * "link:lib" "-d" 
+ * "D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\one.matlab.tools\\src" "-N" 
+ * "-p" "images" "-p" "distcomp" "-p" "stats" "-w" "enable:specified_file_mismatch" "-w" 
  * "enable:repeated_file" "-w" "enable:switch_ignored" "-w" "enable:missing_lib_sentinel" 
  * "-w" "enable:demo_license" "-v" 
- * "class{Convolution:C:\\Users\\asangpet\\Documents\\MATLAB\\conv_cut.m,C:\\Users\\asangpet\\Documents\\MATLAB\\convolve.m,C:\\Users\\asangpet\\Documents\\MATLAB\\deconv_lucy.m,C:\\Users\\asangpet\\Documents\\MATLAB\\deconv_master.m,C:\\Users\\asangpet\\Documents\\MATLAB\\deconv_reg.m,C:\\Users\\asangpet\\Documents\\MATLAB\\deconv_wnr.m,C:\\Users\\asangpet\\Documents\\MATLAB\\findDeconvError.m,C:\\Users\\asangpet\\Documents\\MATLAB\\normalized.m}" 
- * "class{ParallelConvolution:C:\\Users\\asangpet\\Documents\\MATLAB\\deleteJob.m,C:\\Users\\asangpet\\Documents\\MATLAB\\doConv.m,C:\\Users\\asangpet\\Documents\\MATLAB\\doDeconv.m,C:\\Users\\asangpet\\Documents\\MATLAB\\doDeconvLucy.m,C:\\Users\\asangpet\\Documents\\MATLAB\\doDeconvReg.m,C:\\Users\\asangpet\\Documents\\MATLAB\\doDeconvWnr.m,C:\\Users\\asangpet\\Documents\\MATLAB\\getJobStatus.m,C:\\Users\\asangpet\\Documents\\MATLAB\\waitForJob.m}" 
+ * "class{Convolution:D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\conv_cut.m,D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\convolve.m,D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\deconv_lucy.m,D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\deconv_master.m,D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\deconv_reg.m,D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\deconv_wnr.m,D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\findDeconvError.m,D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\normalized.m}" 
+ * "class{ParallelConvolution:D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\deleteJob.m,D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\doConv.m,D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\doDeconv.m,D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\doDeconvLucy.m,D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\doDeconvReg.m,D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\doDeconvWnr.m,D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\getJobStatus.m,D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\waitForJob.m}" 
+ * "class{Distribution:D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\dist_gevpdf.m}" 
  */
 
 package one.matlab.tools;
@@ -21,14 +23,14 @@ import java.rmi.RemoteException;
  * The <code>ParallelConvolutionRemote</code> class provides a Java RMI-compliant 
  * interface to the M-functions from the files:
  * <pre>
- *  C:\\Users\\asangpet\\Documents\\MATLAB\\deleteJob.m
- *  C:\\Users\\asangpet\\Documents\\MATLAB\\doConv.m
- *  C:\\Users\\asangpet\\Documents\\MATLAB\\doDeconv.m
- *  C:\\Users\\asangpet\\Documents\\MATLAB\\doDeconvLucy.m
- *  C:\\Users\\asangpet\\Documents\\MATLAB\\doDeconvReg.m
- *  C:\\Users\\asangpet\\Documents\\MATLAB\\doDeconvWnr.m
- *  C:\\Users\\asangpet\\Documents\\MATLAB\\getJobStatus.m
- *  C:\\Users\\asangpet\\Documents\\MATLAB\\waitForJob.m
+ *  D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\deleteJob.m
+ *  D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\doConv.m
+ *  D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\doDeconv.m
+ *  D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\doDeconvLucy.m
+ *  D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\doDeconvReg.m
+ *  D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\doDeconvWnr.m
+ *  D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\getJobStatus.m
+ *  D:\\workspace\\tactic\\matlab-service\\src\\main\\matlab\\waitForJob.m
  * </pre>
  * The {@link #dispose} method <b>must</b> be called on a 
  * <code>ParallelConvolutionRemote</code> instance when it is no longer needed to ensure 

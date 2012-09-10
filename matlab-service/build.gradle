@@ -4,6 +4,9 @@ version = '0.0.1'
 
 description = 'Matlab MCR service'
 
+configurations {
+	bundleLibs
+}
 repositories {
 	flatDir name: 'localRepository', dirs: file('lib')
 }
@@ -11,7 +14,11 @@ repositories {
 dependencies {
 	compile ":javabuilder:1.0.0"
 	compile ":matlab-tools:1.0.0"
+	bundleLibs ":javabuilder:1.0.0"
+	bundleLibs ":matlab-tools:1.0.0"
+	
 	compile group: 'org.apache.commons', name: 'commons-math3', version: '3.0'
+	bundleLibs "org.apache.commons:commons-math3:3.0"
 	
 	providedCompile "org.springframework:spring-context:$springVersion"
 	providedCompile "org.springframework:spring-context-support:$springVersion"
@@ -30,9 +37,11 @@ dependencies {
 bundlor {
 	bundleVersion = project.version
 	failOnWarnings = false
+	manifestTemplate = new File("${project.projectDir}/src/main/resources/META-INF/MANIFEST.MF").text	
 }
 
 jar {
-	manifest.from new File("${project.projectDir}/src/main/resources/META-INF/MANIFEST.MF")
-	from ('lib')
+	into('lib') {
+		from configurations.bundleLibs
+	}
 }

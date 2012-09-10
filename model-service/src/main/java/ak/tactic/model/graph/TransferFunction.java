@@ -2,7 +2,7 @@ package ak.tactic.model.graph;
 
 import java.util.List;
 
-import ak.tactic.math.DiscreteProbDensity;
+import ak.tactic.model.math.DiscreteProbDensity;
 
 public class TransferFunction {
 	public DiscreteProbDensity inputPdf;
