@@ -55,6 +55,16 @@ public class IndexController {
 	public String analysisModel(@PathVariable String instanceName, Model model) {
 		AnalysisInstance instance = modelService.getAnalysisInstance(instanceName);
 		Map<String, double[]> map = instance.analyze();
+		model.addAttribute("helloLabel", toMatlabString(map).toString());
+		return "vanilla";
+	}
+	
+	@RequestMapping(value = "/play", method = RequestMethod.GET)
+	public String play(Model model) {
+		return "play";
+	}
+	
+	private StringBuffer toMatlabString(Map<String, double[]> map) {
 		StringBuffer sb = new StringBuffer();
 		for (Map.Entry<String, double[]> entry : map.entrySet()) {
 			sb.append(entry.getKey());
@@ -65,12 +75,6 @@ public class IndexController {
 			}
 			sb.append("];\n");
 		}
-		model.addAttribute("helloLabel", sb.toString());
-		return "vanilla";
-	}
-	
-	@RequestMapping(value = "/play", method = RequestMethod.GET)
-	public String play(Model model) {
-		return "play";
+		return sb;
 	}
 }

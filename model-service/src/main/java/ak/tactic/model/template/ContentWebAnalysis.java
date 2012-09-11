@@ -35,7 +35,8 @@ public class ContentWebAnalysis implements AnalysisInstance {
 	Service service;
 	AnalysisGraph graph;
 	
-	static final String MODEL	 = "responseTime";
+	static final String PROFILE_MODEL = "multicore_profile";
+	static final String ACTUAL_MODEL  = "responseTime";
 	
 	static final String VARNISH  = "10.0.50.2";
 	static final String NFS      = "10.0.91.1";
@@ -113,14 +114,14 @@ public class ContentWebAnalysis implements AnalysisInstance {
 	@Override
 	public Map<String, double[]> analyze() {
 		Map<String, DiscreteProbDensity> densityMap = new LinkedHashMap<String, DiscreteProbDensity>();
-		densityMap.put(VARNISH, modelData.getPdf(MODEL, VARNISH));
-		densityMap.put(NFS, modelData.getPdf(MODEL, NFS));
-		densityMap.put(DRUPAL1, modelData.getPdf(MODEL, DRUPAL1));
-		densityMap.put(DRUPAL2, modelData.getPdf(MODEL, DRUPAL2));
-		densityMap.put(DRUPAL3, modelData.getPdf(MODEL, DRUPAL3));
-		densityMap.put(MYSQL, modelData.getPdf(MODEL, MYSQL));
-		densityMap.put(SOLR, modelData.getPdf(MODEL, SOLR));
-		densityMap.put(MEMCACHE, modelData.getPdf(MODEL, MEMCACHE));
+		densityMap.put(VARNISH, modelData.getPdf(PROFILE_MODEL, VARNISH));
+		densityMap.put(NFS, modelData.getPdf(PROFILE_MODEL, NFS));
+		densityMap.put(DRUPAL1, modelData.getPdf(PROFILE_MODEL, DRUPAL1));
+		densityMap.put(DRUPAL2, modelData.getPdf(PROFILE_MODEL, DRUPAL2));
+		densityMap.put(DRUPAL3, modelData.getPdf(PROFILE_MODEL, DRUPAL3));
+		densityMap.put(MYSQL, modelData.getPdf(PROFILE_MODEL, MYSQL));
+		densityMap.put(SOLR, modelData.getPdf(PROFILE_MODEL, SOLR));
+		densityMap.put(MEMCACHE, modelData.getPdf(PROFILE_MODEL, MEMCACHE));
 		graph.analyze(densityMap);
 		
 		Map<String, double[]> result = new LinkedHashMap<String, double[]>();
@@ -142,6 +143,29 @@ public class ContentWebAnalysis implements AnalysisInstance {
 		result.put("mysql", graph.getNode(MYSQL).getAnalysisResponse().getPdf().getPdf());		
 		result.put("solr", graph.getNode(SOLR).getAnalysisResponse().getPdf().getPdf());		
 		result.put("cache", graph.getNode(MEMCACHE).getAnalysisResponse().getPdf().getPdf());
+		
+		// Added prediction from actual result		
+		Map<String, DiscreteProbDensity> actualPdf = new LinkedHashMap<String, DiscreteProbDensity>();
+		actualPdf.put(NFS, modelData.getPdf(ACTUAL_MODEL, NFS));
+		actualPdf.put(MYSQL, modelData.getPdf(ACTUAL_MODEL, MYSQL));
+		actualPdf.put(SOLR, modelData.getPdf(ACTUAL_MODEL, SOLR));
+		actualPdf.put(MEMCACHE, modelData.getPdf(ACTUAL_MODEL, MEMCACHE));
+		graph.predict(actualPdf);
+		
+		result.put("pvarnish", graph.getNode(VARNISH).getAnalysisResponse().getPdf().getPdf());
+		result.put("pnfs", graph.getNode(NFS).getAnalysisResponse().getPdf().getPdf());
+		result.put("pdrupal1", graph.getNode(DRUPAL1).getAnalysisResponse().getPdf().getPdf());
+		result.put("pdrupal2", graph.getNode(DRUPAL2).getAnalysisResponse().getPdf().getPdf());
+		result.put("pdrupal3", graph.getNode(DRUPAL3).getAnalysisResponse().getPdf().getPdf());
+		result.put("pmysql", graph.getNode(MYSQL).getAnalysisResponse().getPdf().getPdf());		
+		result.put("psolr", graph.getNode(SOLR).getAnalysisResponse().getPdf().getPdf());		
+		result.put("pcache", graph.getNode(MEMCACHE).getAnalysisResponse().getPdf().getPdf());
+		
+		result.put("avarnish", modelData.getPdf(ACTUAL_MODEL, VARNISH).getPdf());
+		result.put("adrupal1", modelData.getPdf(ACTUAL_MODEL, DRUPAL1).getPdf());
+		result.put("adrupal2", modelData.getPdf(ACTUAL_MODEL, DRUPAL2).getPdf());
+		result.put("adrupal3", modelData.getPdf(ACTUAL_MODEL, DRUPAL3).getPdf());
+		
 		
 		/* Manual shift
 		Map<String, DiscreteProbDensity> transferMap = new LinkedHashMap<String, DiscreteProbDensity>();

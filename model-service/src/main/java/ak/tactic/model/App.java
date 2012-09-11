@@ -63,6 +63,7 @@ public class App {
 		long computeTime = System.currentTimeMillis();
 		MongoCollection collection = dataService.getCollection(collectionName);
 		MongoCollection pdfCollection = dataService.getModelCollection();
+		collection.ensureIndex("{timestamp:1}");
 		
 		Iterator<ResponseInfo> iter = collection.find("{}").sort("{timestamp:1}").as(ResponseInfo.class).iterator();
 		StringBuffer sbuf = new StringBuffer();

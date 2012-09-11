@@ -70,6 +70,11 @@ public class AnalysisGraph extends InstanceGraph {
 		//predict(densityMap);
 	}
 
+	/**
+	 * Predict analysis response based on the given server response of the specified node.
+	 * 
+	 * @param densityMap
+	 */
 	public void predict(Map<String, DiscreteProbDensity> densityMap) {
 		resetMark();
 
