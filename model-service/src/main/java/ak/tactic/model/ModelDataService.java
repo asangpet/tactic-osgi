@@ -14,8 +14,11 @@ public class ModelDataService {
 	DataService dataService;
 	
 	public DiscreteProbDensity getPdf(String modelName, String nodeName) {
-		DistributionData data = dataService.getModelCollection().findOne("{name:#,model:#}", nodeName, modelName).as(DistributionData.class);
-		Node dummyNode = new Node(nodeName, null, false);
+		return getNode(modelName, nodeName).getServerResponse();
+	}
+	
+	public Node loadPdf(String modelName, Node node) {
+		DistributionData data = dataService.getModelCollection().findOne("{name:#,model:#}", node.getName(), modelName).as(DistributionData.class);
 		
 		double sum = 0;
 		double[] histogram = data.getData();
@@ -28,7 +31,12 @@ public class ModelDataService {
 			}
 		}
 		
-		dummyNode.getServerResponse().setRawCount((long)sum).setPdf(histogram);
-		return dummyNode.getServerResponse();
+		node.getServerResponse().setRawCount((long)sum).setPdf(histogram);
+		return node;		
+	}
+	
+	public Node getNode(String modelName, String nodeName) {
+		Node dummyNode = new Node(nodeName, null, false);
+		return loadPdf(modelName, dummyNode);
 	}
 }
