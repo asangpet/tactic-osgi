@@ -49,7 +49,7 @@ public class MathService {
 		assert dist != null;
 	}
 
-	public DiscreteProbDensity deconvreg(DiscreteProbDensity a,DiscreteProbDensity b) {
+	public DiscreteProbDensity deconv(DiscreteProbDensity a,DiscreteProbDensity b) {
 		DiscreteProbDensity result = new DiscreteProbDensity(a.numSlots,a.min,a.max,a.offset);		
 		try {
 			MWNumericArray mResult = (MWNumericArray)conv.deconv_master(2,
@@ -62,6 +62,49 @@ public class MathService {
 			throw new RuntimeException(e);
 		}
 		return result;
+	}
+
+	/**
+	 * Expand the given distribution range by the given degree * probability.
+	 * (E.g. degree 2 expansion of a distribution with 0.5 probability will
+	 * result in the mean X shifted to 2X.
+	 * @param a
+	 * @param degree
+	 * @param probability
+	 * @return
+	 */
+	public DiscreteProbDensity expand(DiscreteProbDensity a, double degree, double probability) {
+		DiscreteProbDensity result = new DiscreteProbDensity(a);
+		result.raw = null;
+		double sum = 0;
+		double factor = degree*probability;
+		int lastIndex = 0;
+		result.pdf[0] = a.pdf[0];
+		for (int i=1; i<result.pdf.length;i++){
+			int index = (int)Math.round(i*factor);
+			double target = a.pdf[i];
+			double prev = a.pdf[i-1];
+			if (index < result.pdf.length) {
+				result.pdf[index] = target;
+				for (int interim = lastIndex+1;interim < index;interim++) {
+					result.pdf[interim] = prev + (target - prev)*(interim-lastIndex)/(index-lastIndex);					
+				}
+				lastIndex = index;
+			} else {
+				for (int interim = lastIndex+1;interim < result.pdf.length;interim++) {
+					result.pdf[interim] = prev + (target - prev)*(interim-lastIndex)/(index-lastIndex);
+				}				
+				break;
+			}
+		}
+		for (double d : result.pdf) {
+			sum+=d;
+		}
+		if (sum <= 0) sum = 1;
+		for (int i = 0; i < result.pdf.length; i++) {
+			result.pdf[i] = result.pdf[i]/sum;
+		}
+		return result;		
 	}
 
 	public DiscreteProbDensity filter(DiscreteProbDensity a,DiscreteProbDensity b) {
@@ -211,6 +254,14 @@ public class MathService {
 	
 	public static void main(String[] args) {
 		MathService service = new MathService();
-		System.out.println(service.gev(2,1,1));
+		DiscreteProbDensity result = new DiscreteProbDensity(10,0,100,10);
+		for (int i=0;i<result.pdf.length;i++) {
+			result.pdf[i] = i;
+		}
+		result = service.expand(result, 2, 1);
+		for (double d:result.pdf) {
+			System.out.print(d+" ");
+		}
+		//System.out.println(service.gev(2,1,1));
 	}
 }

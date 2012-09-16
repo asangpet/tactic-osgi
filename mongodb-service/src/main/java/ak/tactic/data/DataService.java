@@ -11,6 +11,7 @@ public class DataService {
 	MongoCollection responseCollection;
 	
 	static final String modelCollection = "model";
+	static final String coarrivalCollection = "coarrival";
 	
 	public DataService() throws Exception {
 		mongo = new Mongo("127.0.0.1", 27017);
@@ -25,6 +26,10 @@ public class DataService {
 	
 	public MongoCollection getModelCollection() {
 		return jongo.getCollection(modelCollection);
+	}
+	
+	public MongoCollection getCoarrivalCollection() {
+		return jongo.getCollection(coarrivalCollection);
 	}
 	
 	public Iterable<ResponseInfo> getResponses(String collectionName) {

@@ -1,5 +1,6 @@
 package ak.tactic.model;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -33,6 +34,8 @@ public class App {
 	
 	Map<String, Node> nodeMap = new LinkedHashMap<String,Node>();
 	
+	Map<String, Double> coarrivalMatrix = new HashMap<String,Double>();
+	
 	public void setCollectionName(String collectionName) {
 		this.collectionName = collectionName;
 	}
@@ -51,11 +54,13 @@ public class App {
 		if (needRefresh) {
 			return buildModel();
 		} else {
+			return loadModel();
+			/*
 			if (nodeMap.size() == 0) {
 				return loadModel();
 			} else {
 				return printModel();
-			}
+			}*/
 		}
 	}
 	
@@ -69,6 +74,11 @@ public class App {
 				sbuf.append(", ");
 			}
 			sbuf.append("\n");
+		}
+		
+		for (Map.Entry<String, Double> codata : coarrivalMatrix.entrySet()) {
+			sbuf.append(codata.getKey()+" ");
+			sbuf.append(codata.getValue()+"\n");
 		}
 		return sbuf.toString();
 	}
@@ -100,6 +110,14 @@ public class App {
 			found = true;
 			modelData.loadPdf(modelName,getNode(distData.getName()));
 		}
+		
+		MongoCollection coCollection = dataService.getCoarrivalCollection();
+		for (CoarrivalData coData : coCollection.find("{m:#}",modelName).as(CoarrivalData.class)) {
+			found = true;
+			String coKey = coData.getReferencedComponent()+"|"+coData.getInterferingComponent();
+			coarrivalMatrix.put(coKey, coData.getCoarrival());
+		}
+		
 		if (!found) {
 			return buildModel();
 		}
@@ -154,5 +172,9 @@ public class App {
 	
 	public DataService getDataService() {
 		return dataService;
+	}
+	
+	public Map<String, Double> getCoarrivalMatrix() {
+		return coarrivalMatrix;
 	}
 }

@@ -34,6 +34,8 @@ public class ModelService {
 	
 	@PostConstruct
 	public void init() {
+		buildModel("multicore_profile", false);
+		contentWeb.setApp(appMap.get("multicore_profile"));
 		instances.put("cms", contentWeb);
 		instances.put("dist", distWeb);
 	}

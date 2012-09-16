@@ -32,6 +32,7 @@ public class Node {
 	Object transferFunction = null;
 	Double shiftValue = null;
 	Subgraph parents = null;
+	double expansionFactor = 1;
 	
 	public Node(String name, Component tier, boolean mark) {
 		this.id = name;
@@ -105,5 +106,13 @@ public class Node {
 	
 	public String getName() {
 		return id;
+	}
+	
+	public void setExpansionFactor(double expansionFactor) {
+		this.expansionFactor = expansionFactor;
+	}
+	
+	public double getExpansionFactor() {
+		return expansionFactor;
 	}
 }

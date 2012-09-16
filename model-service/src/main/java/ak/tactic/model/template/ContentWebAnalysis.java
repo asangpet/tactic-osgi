@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ak.tactic.model.App;
 import ak.tactic.model.ModelDataService;
 import ak.tactic.model.deployment.Cluster;
 import ak.tactic.model.deployment.Component;
@@ -67,6 +68,10 @@ public class ContentWebAnalysis implements AnalysisInstance {
 		cluster.add(service).addHost("intelq5");
 		graph = service.getAnalysisGraph();
 		graph.setMatlab(matlab);
+	}
+	
+	public void setApp(App app) {
+		graph.setApp(app);
 	}
 	
 	double findImpact(AnalysisGraph graph, Double relativeShift, String nodeName, String root) {
@@ -166,7 +171,15 @@ public class ContentWebAnalysis implements AnalysisInstance {
 		result.put("adrupal2", modelData.getPdf(ACTUAL_MODEL, DRUPAL2).getPdf());
 		result.put("adrupal3", modelData.getPdf(ACTUAL_MODEL, DRUPAL3).getPdf());
 		
-		
+		//Find percentile
+		double[] qarray = new double[100];
+		for (int i=0;i<100;i++) {
+			qarray[i] = i/100.0;
+		}
+		result.put("prctile_predict",graph.getNode(VARNISH).getAnalysisResponse().getPdf().getQuantile(qarray));
+		result.put("prctile_actual",modelData.getPdf(ACTUAL_MODEL, VARNISH).getQuantile(qarray));
+		result.put("prctile_source",modelData.getPdf(PROFILE_MODEL, VARNISH).getQuantile(qarray));
+
 		/* Manual shift
 		Map<String, DiscreteProbDensity> transferMap = new LinkedHashMap<String, DiscreteProbDensity>();
 		//transferMap.put("db", matlab.gaussian(60, 10).setRaw(500));

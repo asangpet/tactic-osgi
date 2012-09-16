@@ -17,6 +17,9 @@ public class CoarrivalData {
 	@JsonProperty("c")
 	private double coarrival;
 	
+	public CoarrivalData() {
+	}
+	
 	public CoarrivalData(String model, String ref, String inf, double coarrival) {
 		this.referencedComponent = ref;
 		this.interferingComponent = inf;
