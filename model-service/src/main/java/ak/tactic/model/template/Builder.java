@@ -5,6 +5,8 @@ import ak.tactic.model.deployment.Host;
 import ak.tactic.model.deployment.Service;
 import ak.tactic.model.deployment.VirtualMachine;
 import ak.tactic.model.graph.AsynchronousDependency;
+import ak.tactic.model.graph.CompositionDependency;
+import ak.tactic.model.graph.DistributionDependency;
 
 public class Builder {
 	public static ServiceBuilder buildService(String name, String rootName) {
@@ -14,6 +16,13 @@ public class Builder {
 	
 	public static ServiceBuilder newComp(String name) {
 		ServiceBuilder builder = new ServiceBuilder(name, name);
+		builder.rootDependency = CompositionDependency.class;
+		return builder;		
+	}
+	
+	public static ServiceBuilder newDist(String name) {
+		ServiceBuilder builder = new ServiceBuilder(name, name);
+		builder.rootDependency = DistributionDependency.class;
 		return builder;		
 	}
 	

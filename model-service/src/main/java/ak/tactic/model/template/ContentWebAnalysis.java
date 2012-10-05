@@ -24,7 +24,7 @@ import ak.tactic.model.math.MathService;
 
 @org.springframework.stereotype.Component
 public class ContentWebAnalysis implements AnalysisInstance {
-	protected Logger log = LoggerFactory.getLogger(DistWebAnalysis.class);
+	protected Logger log = LoggerFactory.getLogger(ContentWebAnalysis.class);
 	
 	@Autowired
 	protected MathService matlab;
@@ -52,19 +52,43 @@ public class ContentWebAnalysis implements AnalysisInstance {
 	public void init() {
 		cluster = new ImpactCluster("impact");
 		((ImpactCluster)cluster).setLog(log);
-		
+		service = Builder.buildService("drupal", VARNISH)
+				.pushDist(DRUPAL1)
+					.dist(MYSQL, SOLR, MEMCACHE)
+				.pop()
+				.pushDist(DRUPAL2)
+					.dist(MYSQL, SOLR, MEMCACHE)
+				.pop()
+				.pushDist(DRUPAL3)
+					.dist(MYSQL, SOLR, MEMCACHE)
+				.pop()
+				.pushDist(NFS)
+				.build();
+
+		/*
 		service = Builder.buildService("drupal", VARNISH)
 					.pushDist(DRUPAL1)
-						.dist(MYSQL, SOLR, MEMCACHE)
+						.comp(MYSQL, SOLR, MEMCACHE)
 					.pop()
 					.pushDist(DRUPAL2)
-						.dist(MYSQL, SOLR, MEMCACHE)
+						.comp(MYSQL, SOLR, MEMCACHE)
 					.pop()
 					.pushDist(DRUPAL3)
-						.dist(MYSQL, SOLR, MEMCACHE)
+						.comp(MYSQL, SOLR, MEMCACHE)
 					.pop()
 					.pushDist(NFS)
 					.build();
+		*/
+		/*
+		service = Builder.buildService("drupal", VARNISH)
+				.pushDist(NFS)
+				.pop()
+				.dist(DRUPAL1, DRUPAL2, DRUPAL3)
+				.each(
+					Builder.newDist(MYSQL),
+					Builder.newDist(MEMCACHE),
+					Builder.newDist(SOLR));
+		*/
 		cluster.add(service).addHost("intelq5");
 		graph = service.getAnalysisGraph();
 		graph.setMatlab(matlab);
@@ -170,6 +194,9 @@ public class ContentWebAnalysis implements AnalysisInstance {
 		result.put("adrupal1", modelData.getPdf(ACTUAL_MODEL, DRUPAL1).getPdf());
 		result.put("adrupal2", modelData.getPdf(ACTUAL_MODEL, DRUPAL2).getPdf());
 		result.put("adrupal3", modelData.getPdf(ACTUAL_MODEL, DRUPAL3).getPdf());
+		result.put("amysql", modelData.getPdf(ACTUAL_MODEL, MYSQL).getPdf());
+		result.put("asolr", modelData.getPdf(ACTUAL_MODEL, SOLR).getPdf());
+		result.put("acache", modelData.getPdf(ACTUAL_MODEL, MEMCACHE).getPdf());
 		
 		//Find percentile
 		double[] qarray = new double[100];

@@ -49,6 +49,25 @@ public class ServiceBuilder extends Builder {
 		return this;
 	}
 	/**
+	 * Push current active component to stack and replace the current active set with a composite dependency
+	 * @param name
+	 * @return
+	 */
+	public ServiceBuilder pushComp(String... names) {
+		activeStack.push(currentComponents);
+		LinkedHashSet<Component> activeComponents = new LinkedHashSet<Component>();
+		for (String name:names) {
+			for (Component comp:currentComponents) {
+				Component upstream = servicePrototype.addComponent(name);
+				servicePrototype.add(new CompositionDependency(comp,upstream));
+				activeComponents.add(upstream);
+			}
+		}
+		currentComponents = activeComponents;
+		return this;
+	}
+	
+	/**
 	 * Replace the current components with the ones on the stack
 	 * @return
 	 */

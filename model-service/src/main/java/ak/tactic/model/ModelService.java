@@ -14,6 +14,7 @@ import ak.tactic.model.math.MathService;
 import ak.tactic.model.template.AnalysisInstance;
 import ak.tactic.model.template.ContentWebAnalysis;
 import ak.tactic.model.template.DistWebAnalysis;
+import ak.tactic.model.template.MongoAnalysis;
 
 @Service("modelService")
 public class ModelService {
@@ -31,6 +32,8 @@ public class ModelService {
 	ContentWebAnalysis contentWeb;
 	@Autowired
 	DistWebAnalysis distWeb;
+	@Autowired
+	MongoAnalysis mongoCluster;
 	
 	@PostConstruct
 	public void init() {
@@ -38,6 +41,10 @@ public class ModelService {
 		contentWeb.setApp(appMap.get("multicore_profile"));
 		instances.put("cms", contentWeb);
 		instances.put("dist", distWeb);
+		
+		buildModel("mongoTime", false);
+		mongoCluster.setApp(appMap.get("mongoTime"));
+		instances.put("mongo", mongoCluster);
 	}
 	
 	public String buildModel(String collectionName, boolean needRefresh) {

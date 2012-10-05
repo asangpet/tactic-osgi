@@ -1,5 +1,6 @@
 package ak.tactic.model;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -66,6 +67,8 @@ public class App {
 	
 	public String printModel() {
 		StringBuffer sbuf = new StringBuffer();
+		String[] order = new String[nodeMap.size()];
+		int pos = 0;
 		for (Node node : nodeMap.values()) {
 			sbuf.append(node.toString());
 			sbuf.append(" -> ");
@@ -74,12 +77,32 @@ public class App {
 				sbuf.append(", ");
 			}
 			sbuf.append("\n");
+			order[pos++] = node.getName();
+		}
+		Arrays.sort(order);
+		
+		sbuf.append(String.format("%16s",""));
+		for (String rNode : order) {
+			sbuf.append(String.format("%16s",rNode));
+		}
+		sbuf.append("\n");
+		for (String rNode: order) {
+			sbuf.append(String.format("%16s",rNode));
+			for (String cNode: order) {
+				Double value = coarrivalMatrix.get(rNode+"|"+cNode);
+				sbuf.append(String.format("%16.5f", value));
+				
+			}
+			sbuf.append("\n");
 		}
 		
+		/*
 		for (Map.Entry<String, Double> codata : coarrivalMatrix.entrySet()) {
 			sbuf.append(codata.getKey()+" ");
-			sbuf.append(codata.getValue()+"\n");
+			sbuf.append(String.format("%8.3f", codata.getValue()));
+			sbuf.append("\n");
 		}
+		*/
 		return sbuf.toString();
 	}
 	

@@ -1,6 +1,7 @@
 package ak.tactic.model.graph;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,8 +18,9 @@ import ak.tactic.model.math.ParametricDensity;
 
 public class AnalysisGraph extends InstanceGraph {
 	Node root = null;
-	double EXPANSION_FACTOR = 2.0;
+	double EXPANSION_FACTOR = 1;
 	boolean FIND_PARAMETRIC = false;
+	boolean USE_EXPANSION = true;
 
 	MathService matlab;
 	App app;
@@ -37,7 +39,6 @@ public class AnalysisGraph extends InstanceGraph {
 	DiscreteProbDensity getPdf(double shape,double scale,double location) {
 		return matlab.gev(shape,scale,location);
 	}
-	//def getPdf = { shape, scale,location -> matlab.norm(scale,location) }
 		
 	Double getCoarrival(Node a, Node b) {
 		return app.getCoarrivalMatrix().get(a.getName()+"|"+b.getName());
@@ -140,7 +141,7 @@ public class AnalysisGraph extends InstanceGraph {
 	}
 
 	double setCutoff(DiscreteProbDensity pdf) {
-		return pdf.average()+5*pdf.stdev();
+		return pdf.average()+10*pdf.stdev();
 	}
 
 	void analyzeResponse(Node node) {
@@ -284,7 +285,8 @@ public class AnalysisGraph extends InstanceGraph {
 						convPdf = compositeRespPdf;
 					} else if (compositeRespPdf == null) convPdf = distRespPdf;
 					else {
-						convPdf = distRespPdf.tconv(compositeRespPdf).normalize();
+						//convPdf = distRespPdf.tconv(compositeRespPdf).normalize();
+						convPdf = matlab.filter(distRespPdf, compositeRespPdf).normalize();
 						if (distRespPdf.getRawCount() > compositeRespPdf.getRawCount()) {
 							convPdf.setRawCount(distRespPdf.getRawCount()); 
 						} else {
@@ -293,8 +295,16 @@ public class AnalysisGraph extends InstanceGraph {
 					}
 
 					// The non-parametric transfer is the deconvolution of the output pdf and input pdf
-					log.debug("Deconvolution {} with {}",node.serverResponse.average(),convPdf.average());
+					//log.debug("Deconvolution {} with {}",node.serverResponse.average(),convPdf.average());
 					DiscreteProbDensity modelTransfer = matlab.deconv(node.serverResponse,convPdf);
+					// scale down this transfer by the number of VM stacking on a processing unit
+					
+					// TODO: Figure out how to determine the deconvolution of stacked VMs
+					if (USE_EXPANSION) {
+						DiscreteProbDensity shrinkTransfer = matlab.shrink(node.serverResponse, EXPANSION_FACTOR, 1);
+						DiscreteProbDensity sourceTransfer = matlab.multiDistribute(Arrays.asList(shrinkTransfer, modelTransfer), Arrays.asList(1-getExpectedCoarrival(node), getExpectedCoarrival(node)));
+						modelTransfer = sourceTransfer;	
+					}
 					
 					findAnalysisResponse(distRespPdf, compositeRespPdf, modelTransfer, node, distResp, distProb, convPdf);
 				}
@@ -442,16 +452,16 @@ public class AnalysisGraph extends InstanceGraph {
 			List<ParametricDensity> distResp, List<Double> distProb, DiscreteProbDensity convPdf) {
 		if (distRespPdf == null) {
 			// Composite only
-			DiscreteProbDensity reconv = matlab.filter(compositeRespPdf,modelTransfer).ensurePositive().cutoff(node.model.cutoff); //.smooth()
-			ParametricDensity inputGev = new ParametricDensity(compositeRespPdf);
+			//DiscreteProbDensity reconv = matlab.filter(compositeRespPdf,modelTransfer).ensurePositive().cutoff(node.model.cutoff); //.smooth()
+			////ParametricDensity inputGev = new ParametricDensity(compositeRespPdf);
 
 			// obtain parametric function for output
 			//ParametricDensity newFit = (shapeshift)?getParamFit(reconv,nonparamPredict):getParamFitShape(reconv,inputGev.getParam()[0],nonparamPredict);
-			node.modelinput = inputGev;
+			////node.modelinput = inputGev;
 			//log.debug("---{}--- Composite Parameters   = {}", node, newFit);
 
 			//if (inputGev.getParam()[1] <= 0) inputGev.getParam()[1] = newFit.getParam()[1];
-			if (inputGev.getParam()[1] <= 0) inputGev.getParam()[1] = 1;
+			////if (inputGev.getParam()[1] <= 0) inputGev.getParam()[1] = 1;
 
 			// Recalculate proper transfer
 			TransferFunction transfer = new TransferFunction(null, modelTransfer);
@@ -473,14 +483,14 @@ public class AnalysisGraph extends InstanceGraph {
 		} else if (compositeRespPdf == null) {
 			// distribution node
 			double[] averageTransfer = new double[] {0,0,0};
-			double[] maxTransfer = new double[] {0,0,0};
+			//double[] maxTransfer = new double[] {0,0,0};
 			List<double[]> linkTransfer = new ArrayList<double[]>();
 			int distCount = 0;
 
 			List<DiscreteProbDensity> distPdf = new LinkedList<DiscreteProbDensity>();
 
 			for (ParametricDensity it:distResp) {
-				DiscreteProbDensity reconv = matlab.filter(it.getPdf(), modelTransfer).ensurePositive();//.smooth()
+				//DiscreteProbDensity reconv = matlab.filter(it.getPdf(), modelTransfer).ensurePositive();//.smooth()
 
 				TransferFunction transfer = new TransferFunction(null, modelTransfer);
 				log.debug("---{}--- Distributed Component Transfer = {}",node,transfer);
@@ -528,8 +538,11 @@ public class AnalysisGraph extends InstanceGraph {
 
 				DiscreteProbDensity predictPdf = null;// = getPdf(newParam[0],newParam[1],newParam[2]);
 				DiscreteProbDensity baseTransfer = (node.transferEdited)?node.model.transfer.editedNonparamPdf : node.model.transfer.nonparamPdf;
-				DiscreteProbDensity expandedTransfer = matlab.expand(baseTransfer, EXPANSION_FACTOR, getExpectedCoarrival(node));
-				predictPdf = matlab.filter(compositeRespPdf, expandedTransfer).ensurePositive().cutoff(node.model.cutoff);
+				if (USE_EXPANSION) {
+					DiscreteProbDensity expandedTransfer = matlab.expand(baseTransfer, EXPANSION_FACTOR, 1);
+					baseTransfer = matlab.multiDistribute(Arrays.asList(baseTransfer, expandedTransfer), Arrays.asList(1-getExpectedCoarrival(node), getExpectedCoarrival(node)));
+				}
+				predictPdf = matlab.filter(compositeRespPdf, baseTransfer).ensurePositive().cutoff(node.model.cutoff);
 				
 				log.debug("Predicted composite output avg {}",predictPdf.average());
 				node.analysisResponse = new ParametricDensity(predictPdf, newParam, null);
@@ -548,8 +561,11 @@ public class AnalysisGraph extends InstanceGraph {
 				for (ParametricDensity it:distResp) {
 					// find input response
 					DiscreteProbDensity baseTransfer = (node.transferEdited)?node.model.transfer.editedNonparamPdf : node.model.transfer.nonparamPdf;
-					DiscreteProbDensity expandedTransfer = matlab.expand(baseTransfer, EXPANSION_FACTOR, getExpectedCoarrival(node));
-					dPdf.add(matlab.filter(it.pdf, expandedTransfer));
+					if (USE_EXPANSION) {
+						DiscreteProbDensity expandedTransfer = matlab.expand(baseTransfer, EXPANSION_FACTOR, 1);
+						baseTransfer = matlab.multiDistribute(Arrays.asList(baseTransfer, expandedTransfer), Arrays.asList(1-getExpectedCoarrival(node), getExpectedCoarrival(node)));
+					}
+					dPdf.add(matlab.filter(it.pdf, baseTransfer));
 				}
 				newDistPdf = matlab.multiDistribute(dPdf,distProb).ensurePositive().cutoff(node.model.cutoff);
 				node.analysisResponse = new ParametricDensity(newDistPdf);

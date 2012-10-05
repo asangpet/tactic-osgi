@@ -106,6 +106,48 @@ public class MathService {
 		}
 		return result;		
 	}
+	
+	/**
+	 * Shrink the given distribution range by the given degree * probability.
+	 * (E.g. degree 2 shrinking of a distribution with 1.0 probability will
+	 * result in the mean X shifted to X/2.
+	 * @param a
+	 * @param degree
+	 * @param probability
+	 * @return
+	 */
+	public DiscreteProbDensity shrink(DiscreteProbDensity a, double degree, double probability) {
+		DiscreteProbDensity result = new DiscreteProbDensity(a);
+		result.raw = null;
+		double sum = 0;
+		double factor = 1.0/degree/probability;
+		int lastIndex = 0;
+		result.pdf[0] = a.pdf[0];
+		for (int i=1; i<result.pdf.length;i++){
+			int index = (int)Math.round(i*factor);
+			double target = a.pdf[i];
+			double prev = a.pdf[i-1];
+			if (index == lastIndex) {
+				result.pdf[index] += target;
+			} else {
+				result.pdf[index] = target;
+			}
+			lastIndex = index;
+		}
+		for (int i=lastIndex+1; i<result.pdf.length; i++) {
+			// Fading out factor
+			//result.pdf[i] = result.pdf[i-1]/2;
+			result.pdf[i] = 0;
+		}
+		for (double d : result.pdf) {
+			sum+=d;
+		}
+		if (sum <= 0) sum = 1;
+		for (int i = 0; i < result.pdf.length; i++) {
+			result.pdf[i] = result.pdf[i]/sum;
+		}
+		return result;		
+	}	
 
 	public DiscreteProbDensity filter(DiscreteProbDensity a,DiscreteProbDensity b) {
 		DiscreteProbDensity result = new DiscreteProbDensity(a.numSlots,a.min,a.max,a.offset);		
@@ -258,7 +300,7 @@ public class MathService {
 		for (int i=0;i<result.pdf.length;i++) {
 			result.pdf[i] = i;
 		}
-		result = service.expand(result, 2, 1);
+		result = service.shrink(result, 2, 0.5);
 		for (double d:result.pdf) {
 			System.out.print(d+" ");
 		}

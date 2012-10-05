@@ -265,7 +265,7 @@ public class DiscreteProbDensity {
 		}
 	}
 
-	// cut off value above 3sd
+	// cut off value above given cutpoint
 	public DiscreteProbDensity cutoff(double cutpoint) {
 		double val = min+interval/2 - offset;
 		//double minval = min+interval/2;
