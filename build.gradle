@@ -48,7 +48,7 @@ subprojects { subproject ->
 		jacksonVersion = '1.9.7'
 		thymeleafVersion = '2.0.12'
 
-		pickupLocation = 'Z:/pickup'
+		pickupLocation = 'Y:/pickup'
 	}
 
 	eclipse {

@@ -181,6 +181,10 @@ then
 		# Ensure that the tmp directory exists
 		mkdir -p $TMP_DIR
 
+        JAVA_OPTS="$JAVA_OPTS \
+                    -Xmx512m \
+                    -XX:MaxPermSize=512m"
+
 		cd $KERNEL_HOME; exec $JAVA_HOME/bin/java \
 			$JAVA_OPTS \
 			$DEBUG_OPTS \
@@ -199,6 +203,7 @@ then
             -Dosgi.configuration.area=$CONFIG_AREA \
             -Dssh.server.keystore="$CONFIG_DIR/hostkey.ser" \
             -Dosgi.frameworkClassPath=$FWCLASSPATH \
+            -Djava.endorsed.dirs="$KERNEL_HOME/lib/endorsed" \
             -classpath $CLASSPATH \
 			org.eclipse.equinox.launcher.Main \
             -noExit \
@@ -270,7 +275,7 @@ then
 		-classpath $CLASSPATH \
 		-Dorg.eclipse.virgo.kernel.home=$KERNEL_HOME \
 		-Dorg.eclipse.virgo.kernel.authentication.file=$CONFIG_DIR/org.eclipse.virgo.kernel.users.properties \
-		org.eclipse.virgo.kernel.shutdown.ShutdownClient $OTHER_ARGS
+		org.eclipse.virgo.nano.shutdown.ShutdownClient $OTHER_ARGS
 	
 else
 	echo "Unknown command: ${COMMAND}"

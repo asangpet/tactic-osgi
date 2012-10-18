@@ -3,7 +3,7 @@
 <repository name='download cache' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1.0.0'>
   <properties size='2'>
     <property name='p2.system' value='true'/>
-    <property name='p2.timestamp' value='1341927361250'/>
+    <property name='p2.timestamp' value='1349829181206'/>
   </properties>
   <mappings size='3'>
     <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
@@ -13,22 +13,22 @@
   <artifacts size='4'>
     <artifact classifier='binary' id='tomcat_server_resources' version='1.0.0'>
       <properties size='1'>
-        <property name='download.size' value='29887628'/>
+        <property name='download.size' value='28866887'/>
       </properties>
     </artifact>
     <artifact classifier='binary' id='nano_common_resources' version='1.0.0'>
       <properties size='1'>
-        <property name='download.size' value='1450872'/>
+        <property name='download.size' value='152878'/>
       </properties>
     </artifact>
     <artifact classifier='binary' id='scripts' version='1.0.0'>
       <properties size='1'>
-        <property name='download.size' value='10987'/>
+        <property name='download.size' value='11087'/>
       </properties>
     </artifact>
     <artifact classifier='binary' id='kernel_resources' version='1.0.0'>
       <properties size='1'>
-        <property name='download.size' value='4443757'/>
+        <property name='download.size' value='4423156'/>
       </properties>
     </artifact>
   </artifacts>

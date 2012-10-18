@@ -14,8 +14,12 @@ public class DataService {
 	static final String coarrivalCollection = "coarrival";
 	
 	public DataService() throws Exception {
+		/*
 		mongo = new Mongo("127.0.0.1", 27017);
 		jongo = new Jongo(mongo.getDB("collector_b"));
+		*/
+		mongo = new Mongo("10.1.4.7", 27017);
+		jongo = new Jongo(mongo.getDB("mongoTime"));
 		responseCollection = jongo.getCollection("responseTime");
 		getModelCollection().ensureIndex("{name:1}");
 	}
