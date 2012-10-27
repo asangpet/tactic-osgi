@@ -48,7 +48,7 @@ subprojects { subproject ->
 		jacksonVersion = '1.9.7'
 		thymeleafVersion = '2.0.12'
 
-		pickupLocation = 'Y:/pickup'
+		pickupLocation = 'D:/pickup'
 	}
 
 	eclipse {
@@ -104,8 +104,7 @@ subprojects { subproject ->
 			from jar.archivePath
 			into "${pickupLocation}"
 		}
-	}	
-
+	}
 }
 
 task distZip(type: Zip) {
