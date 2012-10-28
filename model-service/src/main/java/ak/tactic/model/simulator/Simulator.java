@@ -1,34 +1,39 @@
 package ak.tactic.model.simulator;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ak.tactic.model.simulator.event.ReadyEvent;
+import ak.tactic.model.simulator.event.RequestArrivalEvent;
 import ak.tactic.model.simulator.event.StartEvent;
 import ak.tactic.model.simulator.framework.Bus;
+import ak.tactic.model.simulator.framework.Subscribe;
 
 public class Simulator {
 	static Logger log = LoggerFactory.getLogger(Simulator.class);
 	static int DISPATCH_QUEUE_LENGTH = 1000;
+	Bus bus;
 	
 	public void run() {
-		Bus bus = new Bus();
+		ExecutorService executor = Executors.newFixedThreadPool(4);
+		bus = new Bus(executor);
 		Scheduler scheduler = new Scheduler(bus);
 		Reporter reporter = new Reporter();
 		bus.register(reporter);
+		bus.register(this);
 		
-		Vm vm1 = new Vm(0);
-		Vm vm2 = new Vm(1);
+		Vm vm1 = new Vm(1, bus);
+		Vm vm2 = new Vm(2, bus);
 		scheduler.addVm(vm1);
 		scheduler.addVm(vm2);
 		bus.post(new StartEvent());
 		
-		ExecutorService executor = bus.getExecutor();
-		executor.shutdown();
 		try {
-			executor.awaitTermination(30, TimeUnit.SECONDS);
+			executor.awaitTermination(10, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -42,6 +47,11 @@ public class Simulator {
 		} catch (InterruptedException ioe) {}
 		executor.shutdown();
 		*/
+	}
+	
+	@Subscribe
+	public void populateRequest(ReadyEvent e) {
+		bus.post(new RequestArrivalEvent(System.currentTimeMillis(), 100));
 	}
 	
 	public static void main(String[] args) {

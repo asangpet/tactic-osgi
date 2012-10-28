@@ -15,8 +15,12 @@ public class ScheduleEvent {
 		return token;
 	}
 	
+	public RequestArrivalEvent getRequest() {
+		return request;
+	}
+	
 	@Override
 	public String toString() {
-		return "Schedule event "+token+" - "+request;
+		return "Schedule event token:"+token+" req:"+request;
 	}
 }

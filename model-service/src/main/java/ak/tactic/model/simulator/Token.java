@@ -19,6 +19,6 @@ public class Token {
 	
 	@Override
 	public String toString() {
-		return "Token "+runnerId+" - "+runtime;
+		return "{ Token runner:"+runnerId+" runtime:"+runtime+" }";
 	}
 }
