@@ -4,23 +4,24 @@ import ak.tactic.model.simulator.Token;
 
 public class ScheduleEvent {
 	Token token;
-	RequestArrivalEvent request;
 	
-	public ScheduleEvent(Token token, RequestArrivalEvent request) {
+	public ScheduleEvent() {
+	}
+	
+	public ScheduleEvent(Token token) {
 		this.token = token;
-		this.request = request;
 	}
 	
 	public Token getToken() {
 		return token;
 	}
 	
-	public RequestArrivalEvent getRequest() {
-		return request;
+	public void setToken(Token token) {
+		this.token = token;
 	}
 	
 	@Override
 	public String toString() {
-		return "Schedule event token:"+token+" req:"+request;
+		return "Schedule event token:"+token;
 	}
 }

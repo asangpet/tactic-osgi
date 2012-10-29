@@ -26,8 +26,8 @@ public class Simulator {
 		bus.register(reporter);
 		bus.register(this);
 		
-		Vm vm1 = new Vm(1, bus);
-		Vm vm2 = new Vm(2, bus);
+		Vm vm1 = new Vm(1, bus, scheduler);
+		Vm vm2 = new Vm(2, bus, scheduler);
 		scheduler.addVm(vm1);
 		scheduler.addVm(vm2);
 		bus.post(new StartEvent());
@@ -51,11 +51,11 @@ public class Simulator {
 	
 	@Subscribe
 	public void populateRequest(ReadyEvent e) {
-		bus.post(new RequestArrivalEvent(System.currentTimeMillis(), 100));
+		bus.post(new RequestArrivalEvent(0, 20, 0));
+		bus.post(new RequestArrivalEvent(0, 20, 1));
 	}
 	
 	public static void main(String[] args) {
-		log.info("Hello");
 		new Simulator().run();
 	}
 }

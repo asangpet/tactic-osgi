@@ -8,6 +8,9 @@ public class Token {
 		runtime += time;
 	}
 	
+	public void setRuntime(long runtime) {
+		this.runtime = runtime;
+	}
 	
 	public void setRunnerId(int runnerId) {
 		this.runnerId = runnerId;
@@ -20,5 +23,9 @@ public class Token {
 	@Override
 	public String toString() {
 		return "{ Token runner:"+runnerId+" runtime:"+runtime+" }";
+	}
+	
+	public long getRuntime() {
+		return runtime;
 	}
 }
