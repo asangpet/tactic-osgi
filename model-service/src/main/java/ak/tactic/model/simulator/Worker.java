@@ -56,11 +56,12 @@ public class Worker {
 		
 		while (remainingSliceTime > 0) {
 			RequestArrivalEvent request = requestQueue.peek();
-			if (request == null) {
+			if (request == null || request.getTimestamp() > token.getRuntime()) {
+				// no available request, or it's a future request
 				break;
 			}
 			
-			logger.debug("Worker {} scheduling {} request {}", new Object[] {runnerId, e, request});			
+			logger.trace("Worker {} scheduling {} request {}", new Object[] {runnerId, e, request});			
 			
 			if (request.getProcessedTime() == 0) {
 				request.setStartTime(token.getRuntime());
@@ -86,12 +87,17 @@ public class Worker {
 				if (requestQueue.isEmpty()) {
 					this.runnable = false;
 				}
-				bus.post(new RequestCompleteEvent()
+				
+				RequestCompleteEvent completion = new RequestCompleteEvent()
 					.setRequestTime(request.getTimestamp())
 					.setStartTime(request.getStartTime())
 					.setFinishTime(token.getRuntime())
 					.setProcessingTime(request.getProcessingTime())
-					.setRunner(this));
+					.setRunner(this)
+					.setOrigin(request);
+
+				request.getRequestChain().offer(completion);
+				bus.post(completion);
 			}
 		}
 		bus.send(new ScheduleEvent(token), callback);

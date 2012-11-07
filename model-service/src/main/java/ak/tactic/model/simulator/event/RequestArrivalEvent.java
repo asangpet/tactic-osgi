@@ -1,5 +1,10 @@
 package ak.tactic.model.simulator.event;
 
+import java.util.PriorityQueue;
+import java.util.Queue;
+
+import com.google.common.collect.Queues;
+
 public class RequestArrivalEvent {
 	public static final long DEFAULT_START_TIME = -1;
 	
@@ -8,6 +13,8 @@ public class RequestArrivalEvent {
 	long processedTime = 0;
 	long startTime = DEFAULT_START_TIME;
 	int targetRunner;
+	
+	PriorityQueue<RequestCompleteEvent> requestChain = Queues.newPriorityQueue();
 	
 	public RequestArrivalEvent(long timestamp, long processingTime, int targetRunner) {
 		this.timestamp = timestamp;
@@ -63,5 +70,9 @@ public class RequestArrivalEvent {
 	
 	public long getProcessedTime() {
 		return processedTime;
+	}
+	
+	public Queue<RequestCompleteEvent> getRequestChain() {
+		return requestChain;
 	}
 }
