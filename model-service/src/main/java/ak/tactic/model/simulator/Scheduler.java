@@ -12,32 +12,37 @@ import ak.tactic.model.simulator.event.ReadyEvent;
 import ak.tactic.model.simulator.event.RequestArrivalEvent;
 import ak.tactic.model.simulator.event.ScheduleEvent;
 import ak.tactic.model.simulator.event.StartEvent;
-import ak.tactic.model.simulator.event.VmScheduleEvent;
+import ak.tactic.model.simulator.event.WorkerScheduleEvent;
 import ak.tactic.model.simulator.framework.Bus;
 import ak.tactic.model.simulator.framework.Subscribe;
 
 public class Scheduler {
 	Logger log = LoggerFactory.getLogger(Scheduler.class);
-	List<Vm> virtualMachines = new ArrayList<Vm>();
+	List<Worker> workers = new ArrayList<Worker>();
 	Bus bus;
 	ExecutorService executor = Executors.newFixedThreadPool(2);
 	Thread waiterThread = null;
+	boolean terminated = false;
 	
 	public Scheduler(Bus bus) {
 		this.bus = bus;
 		this.bus.register(this);
 	}
 	
-	public void addVm(Vm vm) {
-		vm.setRunnerId(virtualMachines.size());
-		virtualMachines.add(vm);
+	public void addVm(Worker vm) {
+		vm.setRunnerId(workers.size());
+		workers.add(vm);
 		bus.register(vm);
+	}
+	
+	public void shutdown() {
+		terminated = true;
 	}
 	
 	@Subscribe
 	public void requestArrive(RequestArrivalEvent e) {
-		log.info("Adding request {} to queue", e);
-		virtualMachines.get(e.getTargetRunner()).addRequest(e);
+		log.trace("Adding request {} to queue", e);
+		workers.get(e.getTargetRunner()).addRequest(e);
 		if (waiterThread != null) {
 			waiterThread.interrupt();
 		}
@@ -60,17 +65,16 @@ public class Scheduler {
 			token = new Token();
 		} else {
 			int runner = token.getRunnerId() + 1;
-			if (runner == virtualMachines.size()) {
+			if (runner == workers.size()) {
 				runner = 0;
 			}
 			token.setRunnerId(runner);
 		}
 		
-		Vm runner = null;
-		boolean interrupted = false;
-		while (runner == null) {
+		Worker runner = null;
+		while (runner == null && !terminated) {
 			runner = findRunner(token);
-			if (interrupted) {
+			if (terminated) {
 				return;
 			}
 			if (runner == null) {
@@ -80,22 +84,21 @@ public class Scheduler {
 				} catch (InterruptedException e1) {
 					waiterThread = null;
 					log.info("Waiter interrupted");
-					interrupted = true;
 				}
 			}
 		}
 	}
 	
-	private Vm findRunner(Token token) {
+	private Worker findRunner(Token token) {
 		RequestArrivalEvent earliestRequest = null;
 		int initRunner = token.getRunnerId();
 		do {
-			Vm vm = virtualMachines.get(token.getRunnerId());
+			Worker vm = workers.get(token.getRunnerId());
 			if (vm.isRunnable()) {
 				RequestArrivalEvent request = vm.peek();
 				if (request != null) {
 					if (request.getTimestamp() <= token.getRuntime()) {
-						bus.send(new VmScheduleEvent(token), vm, this);
+						bus.send(new WorkerScheduleEvent(token), vm, this);
 						return vm;
 					}
 					if (earliestRequest == null || earliestRequest.getTimestamp() < request.getTimestamp()) {
@@ -104,15 +107,15 @@ public class Scheduler {
 				}
 			}
 			token.setRunnerId(token.getRunnerId()+1);
-			if (token.getRunnerId() == virtualMachines.size()) {
+			if (token.getRunnerId() == workers.size()) {
 				token.setRunnerId(0);
 			}
 		} while (token.getRunnerId() != initRunner);
 		
 		if (earliestRequest != null) {
 			token.setRuntime(earliestRequest.getTimestamp());
-			Vm vm = virtualMachines.get(earliestRequest.getTargetRunner()); 
-			bus.send(new VmScheduleEvent(token), vm, this);
+			Worker vm = workers.get(earliestRequest.getTargetRunner()); 
+			bus.send(new WorkerScheduleEvent(token), vm, this);
 			return vm;
 		}
 		return null;

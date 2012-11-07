@@ -5,6 +5,7 @@ public class RequestArrivalEvent {
 	
 	long timestamp;
 	long processingTime;
+	long processedTime = 0;
 	long startTime = DEFAULT_START_TIME;
 	int targetRunner;
 	
@@ -22,6 +23,10 @@ public class RequestArrivalEvent {
 			.append(" start:").append(startTime)
 			.append(" }")
 			.toString();
+	}
+	
+	public void process(long time) {
+		processedTime += time;
 	}
 	
 	public void setProcessingTime(long processingTime) {
@@ -54,5 +59,9 @@ public class RequestArrivalEvent {
 	
 	public void setStartTime(long startTime) {
 		this.startTime = startTime;
+	}
+	
+	public long getProcessedTime() {
+		return processedTime;
 	}
 }

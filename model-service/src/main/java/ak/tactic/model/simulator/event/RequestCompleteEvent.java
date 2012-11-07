@@ -1,9 +1,13 @@
 package ak.tactic.model.simulator.event;
 
+import ak.tactic.model.simulator.Worker;
+
 public class RequestCompleteEvent {
 	long processingTime;
+	long requestTime;
 	long startTime;
 	long finishTime;
+	Worker runner;
 	
 	public long getFinishTime() {
 		return finishTime;
@@ -15,6 +19,14 @@ public class RequestCompleteEvent {
 	
 	public long getStartTime() {
 		return startTime;
+	}
+	
+	public long getRequestTime() {
+		return requestTime;
+	}
+	
+	public Worker getRunner() {
+		return runner;
 	}
 	
 	public RequestCompleteEvent setFinishTime(long finishTime) {
@@ -32,15 +44,27 @@ public class RequestCompleteEvent {
 		return this;
 	}
 	
+	public RequestCompleteEvent setRequestTime(long requestTime) {
+		this.requestTime = requestTime;
+		return this;
+	}
+	
+	public RequestCompleteEvent setRunner(Worker runner) {
+		this.runner = runner;
+		return this;
+	}
+	
 	@Override
 	public String toString() {
 		return new StringBuilder()
 			.append("Request finish in ")
+			.append(finishTime-requestTime)
+			.append("ms (p:")
 			.append(finishTime-startTime)
-			.append("ms (s:")
-			.append(startTime)
-			.append(" f:")
-			.append(finishTime)
+			.append(" q:")
+			.append(startTime-requestTime)
+			.append(" on ")
+			.append(runner.getRunnerId())
 			.append(")")
 			.toString();
 	}

@@ -9,19 +9,19 @@ import org.slf4j.LoggerFactory;
 import ak.tactic.model.simulator.event.RequestArrivalEvent;
 import ak.tactic.model.simulator.event.RequestCompleteEvent;
 import ak.tactic.model.simulator.event.ScheduleEvent;
-import ak.tactic.model.simulator.event.VmScheduleEvent;
+import ak.tactic.model.simulator.event.WorkerScheduleEvent;
 import ak.tactic.model.simulator.framework.Bus;
 import ak.tactic.model.simulator.framework.Subscribe;
 
-public class Vm {
-	Logger logger = LoggerFactory.getLogger(Vm.class);	
+public class Worker {
+	Logger logger = LoggerFactory.getLogger(Worker.class);	
 	int runnerId;
 	BlockingQueue<RequestArrivalEvent> requestQueue = new LinkedBlockingQueue<>();
 	Bus bus;
 	Scheduler scheduler;
 	boolean runnable;
 
-	public Vm(int runnerId, Bus bus, Scheduler scheduler) {
+	public Worker(int runnerId, Bus bus, Scheduler scheduler) {
 		this.runnerId = runnerId;
 		this.bus = bus;
 		this.scheduler = scheduler;
@@ -44,26 +44,40 @@ public class Vm {
 		return requestQueue.peek();
 	}
 	
+	public int getRunnerId() {
+		return runnerId;
+	}
+	
 	@Subscribe
-	public void processRequest(VmScheduleEvent e, Object callback) {
-		int runtime = 10;
+	public void processRequest(WorkerScheduleEvent e, Object callback) {
+		int allocatedSliceTime = 10;
+		int remainingSliceTime = allocatedSliceTime;
 		Token token = e.getToken();
-		RequestArrivalEvent request = requestQueue.peek();
-		logger.debug("VM {} scheduling {} request {}", new Object[] {runnerId, e, request});
 		
-		if (request != null) {
-			if (request.getStartTime() == RequestArrivalEvent.DEFAULT_START_TIME) {
-				request.setStartTime(token.getRuntime());
+		while (remainingSliceTime > 0) {
+			RequestArrivalEvent request = requestQueue.peek();
+			if (request == null) {
+				break;
 			}
 			
-			if (request.getProcessingTime() < runtime) {
-				token.addRuntime(request.getProcessingTime());
-			} else {
-				token.addRuntime(runtime);
+			logger.debug("Worker {} scheduling {} request {}", new Object[] {runnerId, e, request});			
+			
+			if (request.getProcessedTime() == 0) {
+				request.setStartTime(token.getRuntime());
 			}
-			long remainingTime = request.getProcessingTime() - runtime;
-			request.setProcessingTime(remainingTime);
-			if (remainingTime <= 0) {
+
+			long remainingWork = request.getProcessingTime() - request.getProcessedTime();
+			if (remainingWork < remainingSliceTime) {
+				request.process(remainingWork);
+				token.addRuntime(remainingWork);
+				remainingSliceTime -= request.getProcessedTime();
+			} else {
+				request.process(remainingSliceTime);
+				token.addRuntime(remainingSliceTime);
+				remainingSliceTime = 0;
+			}
+			
+			if (request.getProcessedTime() == request.getProcessingTime()) {
 				try {
 					requestQueue.take();
 				} catch (InterruptedException e1) {
@@ -73,9 +87,11 @@ public class Vm {
 					this.runnable = false;
 				}
 				bus.post(new RequestCompleteEvent()
+					.setRequestTime(request.getTimestamp())
 					.setStartTime(request.getStartTime())
 					.setFinishTime(token.getRuntime())
-					.setProcessingTime(request.getProcessingTime()));
+					.setProcessingTime(request.getProcessingTime())
+					.setRunner(this));
 			}
 		}
 		bus.send(new ScheduleEvent(token), callback);
