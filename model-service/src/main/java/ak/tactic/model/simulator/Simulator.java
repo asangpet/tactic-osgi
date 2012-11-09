@@ -1,5 +1,6 @@
 package ak.tactic.model.simulator;
 
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -30,19 +31,23 @@ public class Simulator {
 		
 		Worker vm1 = new Worker(1, bus, scheduler);
 		Worker vm2 = new Worker(2, bus, scheduler);
-		scheduler.addVm(vm1);
-		scheduler.addVm(vm2);
+		Balancer vm0 = new Balancer(0, bus, scheduler);
+		vm0.setDownstream(Arrays.asList(vm1,vm2));
+		
+		scheduler.addWorker(vm0);
+		scheduler.addWorker(vm1);
+		scheduler.addWorker(vm2);
 		bus.post(new StartEvent());
 		
 		try {
-			executor.awaitTermination(30, TimeUnit.SECONDS);
+			executor.awaitTermination(15, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		bus.post(new ReportEvent());
 		scheduler.shutdown();
 		try {
-			executor.awaitTermination(10, TimeUnit.SECONDS);
+			executor.awaitTermination(15, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -61,7 +66,7 @@ public class Simulator {
 	@Subscribe
 	public void populateRequest(ReadyEvent e) {
 		genRequest(0,500,100);
-		genRequest(1,1000,100);
+		//genRequest(1,1000,100);
 	}
 	
 	int sampleCount = 10000;

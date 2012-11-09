@@ -29,10 +29,10 @@ public class Scheduler {
 		this.bus.register(this);
 	}
 	
-	public void addVm(Worker vm) {
-		vm.setRunnerId(workers.size());
-		workers.add(vm);
-		bus.register(vm);
+	public void addWorker(Worker worker) {
+		worker.setRunnerId(workers.size());
+		workers.add(worker);
+		bus.register(worker);
 	}
 	
 	public void shutdown() {
@@ -93,13 +93,13 @@ public class Scheduler {
 		RequestArrivalEvent earliestRequest = null;
 		int initRunner = token.getRunnerId();
 		do {
-			Worker vm = workers.get(token.getRunnerId());
-			if (vm.isRunnable()) {
-				RequestArrivalEvent request = vm.peek();
+			Worker worker = workers.get(token.getRunnerId());
+			if (worker.isRunnable()) {
+				RequestArrivalEvent request = worker.peek();
 				if (request != null) {
 					if (request.getTimestamp() <= token.getRuntime()) {
-						bus.send(new WorkerScheduleEvent(token), vm, this);
-						return vm;
+						bus.send(new WorkerScheduleEvent(token), worker, this);
+						return worker;
 					}
 					if (earliestRequest == null || earliestRequest.getTimestamp() < request.getTimestamp()) {
 						earliestRequest = request;
@@ -113,10 +113,11 @@ public class Scheduler {
 		} while (token.getRunnerId() != initRunner);
 		
 		if (earliestRequest != null) {
+			token.setRunnerId(earliestRequest.getTargetRunner());
 			token.setRuntime(earliestRequest.getTimestamp());
-			Worker vm = workers.get(earliestRequest.getTargetRunner()); 
-			bus.send(new WorkerScheduleEvent(token), vm, this);
-			return vm;
+			Worker worker = workers.get(earliestRequest.getTargetRunner()); 
+			bus.send(new WorkerScheduleEvent(token), worker, this);
+			return worker;
 		}
 		return null;
 	}

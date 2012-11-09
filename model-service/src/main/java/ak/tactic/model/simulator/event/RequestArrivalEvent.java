@@ -8,11 +8,12 @@ import com.google.common.collect.Queues;
 public class RequestArrivalEvent {
 	public static final long DEFAULT_START_TIME = -1;
 	
+	int targetRunner;
 	long timestamp;
 	long processingTime;
+
 	long processedTime = 0;
 	long startTime = DEFAULT_START_TIME;
-	int targetRunner;
 	
 	PriorityQueue<RequestCompleteEvent> requestChain = Queues.newPriorityQueue();
 	
@@ -20,6 +21,15 @@ public class RequestArrivalEvent {
 		this.timestamp = timestamp;
 		this.processingTime = processingTime;
 		this.targetRunner = targetRunner;
+	}
+	
+	public void resetRequest(long timestamp, long processingTime, int targetRunner) {
+		this.timestamp = timestamp;
+		this.processingTime = processingTime;
+		this.targetRunner = targetRunner;
+
+		this.processedTime = 0;
+		this.startTime = DEFAULT_START_TIME;
 	}
 	
 	@Override

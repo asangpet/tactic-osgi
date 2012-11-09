@@ -14,12 +14,12 @@ import ak.tactic.model.simulator.framework.Bus;
 import ak.tactic.model.simulator.framework.Subscribe;
 
 public class Worker {
-	Logger logger = LoggerFactory.getLogger(Worker.class);	
-	int runnerId;
-	BlockingQueue<RequestArrivalEvent> requestQueue = new LinkedBlockingQueue<>();
-	Bus bus;
-	Scheduler scheduler;
-	boolean runnable;
+	protected Logger logger = LoggerFactory.getLogger(Worker.class);	
+	protected int runnerId;
+	protected BlockingQueue<RequestArrivalEvent> requestQueue = new LinkedBlockingQueue<>();
+	protected Bus bus;
+	protected Scheduler scheduler;
+	protected boolean runnable;
 
 	public Worker(int runnerId, Bus bus, Scheduler scheduler) {
 		this.runnerId = runnerId;
@@ -98,8 +98,14 @@ public class Worker {
 
 				request.getRequestChain().offer(completion);
 				bus.post(completion);
+
+				postProcess(completion);
 			}
 		}
 		bus.send(new ScheduleEvent(token), callback);
+	}
+	
+	protected void postProcess(RequestCompleteEvent completedRequest) {
+		// Do nothing
 	}
 }
