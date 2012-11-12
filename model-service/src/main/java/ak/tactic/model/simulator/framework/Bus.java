@@ -97,7 +97,7 @@ public class Bus {
 					methodList = new ArrayList<Invoker>();
 					eventToInvokerMap.put(eventClass, methodList);
 				}
-				logger.info("Event {} has handler {}", eventClass, method);
+				logger.info("Event {} has handler {} - {}", new Object[] {eventClass, object, method});
 				boolean hasCallback = params.length == 2;
 				Invoker invoker = new Invoker(object, method, hasCallback);
 				methodList.add(invoker);

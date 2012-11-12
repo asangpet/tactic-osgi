@@ -38,6 +38,7 @@ public class RequestArrivalEvent {
 			.append("{ Request Arrival time:").append(timestamp)
 			.append(" proc:").append(processingTime)
 			.append(" start:").append(startTime)
+			.append(" runner:").append(targetRunner)
 			.append(" }")
 			.toString();
 	}

@@ -1,7 +1,8 @@
 package ak.tactic.model.simulator;
 
+import java.util.Comparator;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,22 +17,59 @@ import ak.tactic.model.simulator.framework.Subscribe;
 public class Worker {
 	protected Logger logger = LoggerFactory.getLogger(Worker.class);	
 	protected int runnerId;
-	protected BlockingQueue<RequestArrivalEvent> requestQueue = new LinkedBlockingQueue<>();
+	protected BlockingQueue<RequestArrivalEvent> requestQueue;
 	protected Bus bus;
 	protected Scheduler scheduler;
 	protected boolean runnable;
+	protected TimeDistribution processingTime;
+	protected String name;
 
-	public Worker(int runnerId, Bus bus, Scheduler scheduler) {
+	public Worker(int runnerId, Bus bus, Scheduler scheduler, String name) {
 		this.runnerId = runnerId;
 		this.bus = bus;
 		this.scheduler = scheduler;
+		this.name = name;
+		scheduler.addWorker(this);
+		
+		Comparator<RequestArrivalEvent> comparator = new Comparator<RequestArrivalEvent>() {
+			@Override
+			public int compare(RequestArrivalEvent o1, RequestArrivalEvent o2) {
+				if (o1.getTimestamp() < o2.getTimestamp()) {
+					return -1;
+				} else if (o1.getTimestamp() > o2.getTimestamp()) {
+					return 1;
+				} else {
+					return o1.hashCode() - o2.hashCode();
+				}
+			}
+		};
+		requestQueue = new PriorityBlockingQueue<>(100, comparator);
 	}
 	
-	public void setRunnerId(int runnerId) {
+	public Worker setProcessingTime(TimeDistribution dist) {
+		processingTime = dist;
+		return this;
+	}
+	
+	public Worker setExponentialProcessingTime(double mean) {
+		processingTime = new ExponentialTimeDistribution(mean);
+		return this;
+	}
+	
+	public Worker setConstantProcessingTime(double mean) {
+		processingTime = new ConstantTimeDistribution(mean);
+		return this;
+	}
+	
+	public Worker setRunnerId(int runnerId) {
 		this.runnerId = runnerId;
+		return this;
 	}
 	
-	public void addRequest(RequestArrivalEvent e) {		
+	public void addRequest(RequestArrivalEvent e) {
+		if (processingTime != null) {
+			e.setProcessingTime(processingTime.generate());
+		}
 		this.requestQueue.add(e);
 		runnable = true;
 	}
@@ -61,7 +99,7 @@ public class Worker {
 				break;
 			}
 			
-			logger.trace("Worker {} scheduling {} request {}", new Object[] {runnerId, e, request});			
+			logger.info("Worker {} scheduling {} request {}", new Object[] {name, e, request});			
 			
 			if (request.getProcessedTime() == 0) {
 				request.setStartTime(token.getRuntime());
@@ -107,5 +145,18 @@ public class Worker {
 	
 	protected void postProcess(RequestCompleteEvent completedRequest) {
 		// Do nothing
+	}
+	
+	@Override
+	public String toString() {
+		return "Worker "+name+"("+runnerId+")"; 
+	}
+	
+	public Scheduler getScheduler() {
+		return scheduler;
+	}
+	
+	public String getName() {
+		return name;
 	}
 }

@@ -7,8 +7,8 @@ import ak.tactic.model.simulator.framework.Bus;
 public class Forwarder extends Worker {
 	Worker worker;
 	
-	public Forwarder(int runnerId, Bus bus, Scheduler scheduler) {
-		super(runnerId, bus, scheduler);
+	public Forwarder(int runnerId, Bus bus, Scheduler scheduler, String name) {
+		super(runnerId, bus, scheduler, name);
 	}
 	
 	public void setDownstream(Worker worker) {

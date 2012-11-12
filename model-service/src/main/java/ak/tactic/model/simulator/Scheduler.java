@@ -1,7 +1,8 @@
 package ak.tactic.model.simulator;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,20 +19,24 @@ import ak.tactic.model.simulator.framework.Subscribe;
 
 public class Scheduler {
 	Logger log = LoggerFactory.getLogger(Scheduler.class);
-	List<Worker> workers = new ArrayList<Worker>();
+	LinkedHashMap<Integer, Worker> workers = new LinkedHashMap<Integer,Worker>();
 	Bus bus;
 	ExecutorService executor = Executors.newFixedThreadPool(2);
 	Thread waiterThread = null;
 	boolean terminated = false;
+	final String name;
+	final SystemClock clock;
 	
-	public Scheduler(Bus bus) {
+	public Scheduler(Bus bus, String name, SystemClock clock) {
 		this.bus = bus;
 		this.bus.register(this);
+		this.name = name;
+		this.clock = clock;
+		clock.setSchedulerClock(this, 0);
 	}
 	
 	public void addWorker(Worker worker) {
-		worker.setRunnerId(workers.size());
-		workers.add(worker);
+		workers.put(worker.getRunnerId(), worker);
 		bus.register(worker);
 	}
 	
@@ -40,18 +45,21 @@ public class Scheduler {
 	}
 	
 	@Subscribe
-	public void requestArrive(RequestArrivalEvent e) {
-		log.trace("Adding request {} to queue", e);
-		workers.get(e.getTargetRunner()).addRequest(e);
-		if (waiterThread != null) {
-			waiterThread.interrupt();
+	public void addRequest(RequestArrivalEvent e) {
+		Worker worker = workers.get(e.getTargetRunner());
+		if (worker != null) {
+			log.info("{} - {} add request {} to queue", new Object[] { this, worker, e });
+			worker.addRequest(e);
+			if (waiterThread != null) {
+				waiterThread.interrupt();
+			}
 		}
 	}
 	
 	@Subscribe
 	public void start(final StartEvent e) {
 		log.info("Starting scheduler");
-		bus.post(new ReadyEvent());
+		bus.post(new ReadyEvent(this));
 		
 		bus.post(new ScheduleEvent());
 		log.info("Started");
@@ -63,13 +71,12 @@ public class Scheduler {
 		Token token = e.getToken();
 		if (token == null) {
 			token = new Token();
+			token.setRunnerId(nextRunner().runnerId);
 		} else {
-			int runner = token.getRunnerId() + 1;
-			if (runner == workers.size()) {
-				runner = 0;
-			}
-			token.setRunnerId(runner);
+			Worker runner = nextRunner();
+			token.setRunnerId(runner.getRunnerId());
 		}
+		clock.setSchedulerClock(this, token.getRuntime());
 		
 		Worker runner = null;
 		while (runner == null && !terminated) {
@@ -80,10 +87,10 @@ public class Scheduler {
 			if (runner == null) {
 				waiterThread = Thread.currentThread();
 				try {
-					Thread.sleep(10000);
+					Thread.sleep(1000);
 				} catch (InterruptedException e1) {
 					waiterThread = null;
-					log.info("Waiter interrupted");
+					log.trace("Waiter interrupted");
 				}
 			}
 		}
@@ -92,33 +99,58 @@ public class Scheduler {
 	private Worker findRunner(Token token) {
 		RequestArrivalEvent earliestRequest = null;
 		int initRunner = token.getRunnerId();
+		Worker worker = nextRunner();
+		while (worker.getRunnerId() != initRunner) {
+			worker = nextRunner();
+		}
 		do {
-			Worker worker = workers.get(token.getRunnerId());
 			if (worker.isRunnable()) {
 				RequestArrivalEvent request = worker.peek();
 				if (request != null) {
-					if (request.getTimestamp() <= token.getRuntime()) {
+					if ((request.getTimestamp() <= token.getRuntime()) && (clock.isRunnable(request.getTimestamp()))) {
 						bus.send(new WorkerScheduleEvent(token), worker, this);
-						return worker;
+						return worker;							
 					}
 					if (earliestRequest == null || earliestRequest.getTimestamp() < request.getTimestamp()) {
 						earliestRequest = request;
 					}
 				}
 			}
-			token.setRunnerId(token.getRunnerId()+1);
-			if (token.getRunnerId() == workers.size()) {
-				token.setRunnerId(0);
-			}
+			worker = nextRunner();
+			token.setRunnerId(worker.getRunnerId());
 		} while (token.getRunnerId() != initRunner);
 		
-		if (earliestRequest != null) {
-			token.setRunnerId(earliestRequest.getTargetRunner());
-			token.setRuntime(earliestRequest.getTimestamp());
-			Worker worker = workers.get(earliestRequest.getTargetRunner()); 
-			bus.send(new WorkerScheduleEvent(token), worker, this);
-			return worker;
+		if (earliestRequest != null) {			
+			clock.waitUntil(this, earliestRequest.getTimestamp());
+			if (clock.isRunnable(earliestRequest.getTimestamp())) {
+				token.setRunnerId(earliestRequest.getTargetRunner());
+				token.setRuntime(earliestRequest.getTimestamp());
+				Worker earlyworker = workers.get(earliestRequest.getTargetRunner()); 
+				bus.send(new WorkerScheduleEvent(token), earlyworker, this);
+				return worker;				
+			}
+		} else {
+			clock.setRunnable(this, false);
 		}
 		return null;
+	}
+	
+	Iterator<Map.Entry<Integer, Worker>> runnerIterator;
+	synchronized private Worker nextRunner() {
+		// Warning: may run to concurrent modification
+		if (runnerIterator == null || !runnerIterator.hasNext()) {
+			runnerIterator = workers.entrySet().iterator();
+		}
+		return runnerIterator.next().getValue();
+	}
+	
+	@Override
+	public String toString() {
+		return "Scheduler "+name;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return name.equals(((Scheduler)obj).name);
 	}
 }
